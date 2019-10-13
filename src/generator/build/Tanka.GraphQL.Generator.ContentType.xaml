@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ProjectSchemaDefinitions 
+    xmlns="http://schemas.microsoft.com/build/2009/properties">
+
+    <ContentType
+        Name="Tanka Schema" 
+        DisplayName="GraphQL Schema File" 
+        ItemType="TankaSchema" />
+
+    <ItemType 
+        Name="TankaSchema" 
+        DisplayName="GraphQL Schema File"/>
+
+    <FileExtension 
+        Name=".graphql" 
+        ContentType="TankaSchema" />
+
+</ProjectSchemaDefinitions>

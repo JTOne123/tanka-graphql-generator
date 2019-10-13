@@ -1,0 +1,51 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Project
+	xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+
+	<UsingTask AssemblyFile="$(TankaSchemaTaskAssembly)" TaskName="SchemaGenerator"/>
+
+	<ItemGroup>
+		<PropertyPageSchema Include="$(MSBuildThisFileDirectory)Tanka.GraphQL.Generator.xaml" />
+		<PropertyPageSchema Include="$(MSBuildThisFileDirectory)Tanka.GraphQL.Generator.ContentType.xaml" />
+    <AvailableItemName Include="TankaSchema"/>
+	</ItemGroup>
+
+	<PropertyGroup>
+
+		<CoreCompileDependsOn>
+			GenerateTankaSchema;
+			$(CoreCompileDependsOn)
+		</CoreCompileDependsOn>		
+		
+	</PropertyGroup>
+	
+	<Target 
+		Name="GenerateTankaSchema" 
+		BeforeTargets="BeforeBuild"
+		Condition="'@(TankaSchema)' != ''"
+	>
+
+		<PropertyGroup>
+			<CodeGenerationRoot>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)</CodeGenerationRoot>
+		</PropertyGroup>
+
+		<!--<ItemGroup>
+			<TankaSchemaTemp Include="@(TankaSchema)"/>
+			<TankaSchema Remove="@(TankaSchema)"/>
+		</ItemGroup>
+  -->
+		<SchemaGenerator
+			OutputPath="$(CodeGenerationRoot)"
+			InputFiles="@(TankaSchema)"
+		>
+			<!--<Output TaskParameter="OutputCode" ItemName="ResourceCodeFile"/>
+			<Output TaskParameter="OutputResources" ItemName="ResourceResFile"/>-->
+		</SchemaGenerator>
+
+		<!--<ItemGroup>
+			<Compile Include="@(ResourceCodeFile)"/>
+		</ItemGroup>-->
+		
+	</Target>
+
+</Project>
