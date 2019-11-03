@@ -38,7 +38,7 @@
 			OutputPath="$(CodeGenerationRoot)"
 			InputFiles="@(TankaSchema)"
 		>
-			<!--<Output TaskParameter="OutputCode" ItemName="ResourceCodeFile"/>
+			<!--<Output TaskParameter="OutputFiles" ItemName="ResourceCodeFile"/>
 			<Output TaskParameter="OutputResources" ItemName="ResourceResFile"/>-->
 		</SchemaGenerator>
 

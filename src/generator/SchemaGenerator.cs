@@ -14,7 +14,7 @@ namespace Tanka.GraphQL.Generator
 
         // Will contain all of the generated coded we create 
         [Output] 
-        public ITaskItem[] OutputCode { get; set; }
+        public ITaskItem[] OutputFiles { get; set; }
 
 
         // The method that is called to invoke our task.
@@ -23,10 +23,10 @@ namespace Tanka.GraphQL.Generator
             if (InputFiles == null)
                 return true;
 
-            foreach (var iFile in InputFiles)
-            {
-                var fn = Path.GetFileNameWithoutExtension(iFile.ItemSpec);
-            }
+            //todo: build dotnet tanka-graphql-generator cmd line
+
+            //todo: parse cmd output
+            //todo: add output files to OutputFiles
 
             return true;
         }
