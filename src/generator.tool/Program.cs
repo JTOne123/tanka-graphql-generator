@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using CommandLine;
+using Microsoft.Build.Locator;
+using Microsoft.CodeAnalysis.MSBuild;
 
 namespace generator.tool
 {
@@ -9,9 +11,11 @@ namespace generator.tool
     {
         private static async Task<int> Main(string[] args)
         {
+            MSBuildLocator.RegisterDefaults();
+
             var result = Parser.Default.ParseArguments<GenerateCommandOptions>(args);
             var retCode = await result.MapResult(
-                options => RunGenerateCommand(options),
+                RunGenerateCommand,
                 _ => Task.FromResult(1));
 
             return retCode;
@@ -19,7 +23,10 @@ namespace generator.tool
 
         private static async Task<int> RunGenerateCommand(GenerateCommandOptions opts)
         {
-            await Task.Delay(0);
+            using var workspace = MSBuildWorkspace.Create();
+            await workspace.OpenSolutionAsync(opts.Solution);
+            
+
 
             return 1;
         }
@@ -28,6 +35,9 @@ namespace generator.tool
     [Verb("gen")]
     public class GenerateCommandOptions
     {
+        [Option('p', "project", Required = true, HelpText = "Project file")]
+        public string Solution { get; set; }
+
         [Option('f', "files", Required = true, HelpText = "Input files to be processed")]
         public IEnumerable<string> InputFiles { get; set; }
 
