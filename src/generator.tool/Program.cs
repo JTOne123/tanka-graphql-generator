@@ -1,11 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using CommandLine;
 using Microsoft.Build.Locator;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.MSBuild;
+using Tanka.GraphQL;
+using Tanka.GraphQL.SchemaBuilding;
+using Tanka.GraphQL.SDL;
+using Tanka.GraphQL.TypeSystem;
+using Tanka.GraphQL.ValueResolution;
 
-namespace generator.tool
+namespace Tanka.GraphQL.Generator.Tool
 {
     public class Program
     {
@@ -13,7 +17,7 @@ namespace generator.tool
         {
             MSBuildLocator.RegisterDefaults();
 
-            var result = Parser.Default.ParseArguments<GenerateCommandOptions>(args);
+            var result = CommandLine.Parser.Default.ParseArguments<GenerateCommandOptions>(args);
             var retCode = await result.MapResult(
                 RunGenerateCommand,
                 _ => Task.FromResult(1));
@@ -23,25 +27,18 @@ namespace generator.tool
 
         private static async Task<int> RunGenerateCommand(GenerateCommandOptions opts)
         {
-            using var workspace = MSBuildWorkspace.Create();
-            await workspace.OpenSolutionAsync(opts.Solution);
+            //using var workspace = MSBuildWorkspace.Create();
+            //var project = await workspace.OpenProjectAsync(opts.Project);
             
 
+            foreach (var inputFile in opts.InputFiles)
+            {
+                var generator = new CodeGenerator(inputFile, opts.OutputFolder);
+                await generator.Generate();
+            }
+           
 
             return 1;
         }
-    }
-
-    [Verb("gen")]
-    public class GenerateCommandOptions
-    {
-        [Option('p', "project", Required = true, HelpText = "Project file")]
-        public string Solution { get; set; }
-
-        [Option('f', "files", Required = true, HelpText = "Input files to be processed")]
-        public IEnumerable<string> InputFiles { get; set; }
-
-        [Option('o', "output", HelpText = "Output folder")] 
-        public string OutputFolder { get; set; }
     }
 }

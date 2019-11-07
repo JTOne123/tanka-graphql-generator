@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Text;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -24,6 +25,15 @@ namespace Tanka.GraphQL.Generator
                 return true;
 
             //todo: build dotnet tanka-graphql-generator cmd line
+            var argsBuilder = new StringBuilder();
+
+            foreach (var inputFile in InputFiles)
+            {
+                var filePath = Path.GetFullPath(inputFile.ItemSpec);
+                argsBuilder.Append("-f ");
+                argsBuilder.Append(filePath);
+
+            }
 
             //todo: parse cmd output
             //todo: add output files to OutputFiles
