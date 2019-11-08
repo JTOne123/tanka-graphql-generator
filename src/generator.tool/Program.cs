@@ -1,13 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Collections.Generic;
+using System.Data.SqlTypes;
+using System.IO;
+using System.Text.Json;
+using System.Threading.Tasks;
 using CommandLine;
-using Microsoft.Build.Locator;
-using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.MSBuild;
-using Tanka.GraphQL;
-using Tanka.GraphQL.SchemaBuilding;
-using Tanka.GraphQL.SDL;
 using Tanka.GraphQL.TypeSystem;
-using Tanka.GraphQL.ValueResolution;
 
 namespace Tanka.GraphQL.Generator.Tool
 {
@@ -15,8 +13,6 @@ namespace Tanka.GraphQL.Generator.Tool
     {
         private static async Task<int> Main(string[] args)
         {
-            MSBuildLocator.RegisterDefaults();
-
             var result = CommandLine.Parser.Default.ParseArguments<GenerateCommandOptions>(args);
             var retCode = await result.MapResult(
                 RunGenerateCommand,
@@ -27,18 +23,26 @@ namespace Tanka.GraphQL.Generator.Tool
 
         private static async Task<int> RunGenerateCommand(GenerateCommandOptions opts)
         {
-            //using var workspace = MSBuildWorkspace.Create();
-            //var project = await workspace.OpenProjectAsync(opts.Project);
-            
+            var output = Path.GetFullPath(opts.OutputFolder);
 
+            var files = new List<string>();
             foreach (var inputFile in opts.InputFiles)
             {
                 var generator = new CodeGenerator(inputFile, opts.OutputFolder);
-                await generator.Generate();
-            }
-           
+                var unit = await generator.Generate();
+                var sourceText = unit.ToFullString();
 
-            return 1;
+                var schemaName = Path.GetFileNameWithoutExtension(inputFile);
+                var path = Path.Combine(output, $"{schemaName}.cs");
+
+                Directory.CreateDirectory(output);
+                await File.WriteAllTextAsync(path, sourceText);
+                files.Add(path);
+            }
+
+            Console.WriteLine(JsonSerializer.Serialize(files));
+
+            return 0;
         }
     }
 }

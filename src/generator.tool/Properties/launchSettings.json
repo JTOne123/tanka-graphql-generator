@@ -2,7 +2,7 @@
   "profiles": {
     "generator.tool": {
       "commandName": "Project",
-      "commandLineArgs": "gen -f ../../../../../tests/generator-tests/Data/CRM.graphql"
+      "commandLineArgs": "gen -f ../../../../../tests/generator-tests/Data/CRM.graphql -o output"
     }
   }
 }

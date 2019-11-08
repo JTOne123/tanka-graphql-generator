@@ -24,7 +24,7 @@ namespace Tanka.GraphQL.Generator.Tool
             _outputFolder = outputFolder;
         }
 
-        public async Task Generate()
+        public async Task<CompilationUnitSyntax> Generate()
         {
             var schema = await LoadSchema();
             var nsName = Path.GetFileNameWithoutExtension(_inputFile);
@@ -36,7 +36,7 @@ namespace Tanka.GraphQL.Generator.Tool
                             .WithMembers(List(GenerateTypes(schema)))))
                 .NormalizeWhitespace();
 
-            var sourceText = unit.ToFullString();
+            return unit;
         }
 
         private IEnumerable<UsingDirectiveSyntax> GenerateUsings()

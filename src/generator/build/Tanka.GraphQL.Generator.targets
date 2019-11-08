@@ -35,6 +35,7 @@
 		</ItemGroup>
   -->
 		<SchemaGenerator
+      Command="$(TankaGeneratorToolCommand)"
 			OutputPath="$(CodeGenerationRoot)"
 			InputFiles="@(TankaSchema)"
 		>
