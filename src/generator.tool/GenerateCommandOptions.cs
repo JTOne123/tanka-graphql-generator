@@ -11,5 +11,8 @@ namespace Tanka.GraphQL.Generator.Tool
 
         [Option('o', "output", Required = true, HelpText = "Output folder")] 
         public string OutputFolder { get; set; }
+
+        [Option('n', "namespace", HelpText = "Namespace")]
+        public string Namespace { get; set; }
     }
 }

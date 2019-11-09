@@ -9,44 +9,12 @@ using Tanka.GraphQL.ValueResolution;
 
 namespace Tanka.GraphQL.Generator.Samples.Prototype.CRM
 {
-    public static class Loader
-    {
-        public static SchemaBuilder Load()
-        {
-            //todo: should the SDL be injected here as string from the source file?
-            //todo: should the SDL be loaded from source file here?
-            return new SchemaBuilder()
-                .Sdl(
-                    @"
-type Contact {
-    id: ID!
-    firstName: String!
-    lastName: String!
-    address: Address
-}
-
-type Address {
-    city: String!
-    country: String!
-}
-
-type Query {
-    contact(id: ID!): Contact
-}
-
-schema {
-    query: Query
-}
-");
-        }
-    }
-
     public static class ConfigureServices
     {
-        public static void AddQueryResolvers<T>(this IServiceCollection services) where T: class, IQueryResolvers
+        public static void AddQueryResolvers<T>(this IServiceCollection services) where T: class, IQueryController
         {
-            services.AddTransient<IQueryResolvers, T>();
-            services.AddTankaServerExecutionContextExtension<IQueryResolvers>();
+            services.AddTransient<IQueryController, T>();
+            services.AddTankaServerExecutionContextExtension<IQueryController>();
         }
     }
 
@@ -56,19 +24,15 @@ schema {
         {
             this["Query"] = new FieldResolversMap()
             {
-                {"contact", context => context.Use<IQueryResolvers>().Contact(context)}
+                {"contact", context => context.Use<IQueryController>().Contact(context)}
             };
         }
     }
 
 
-    public interface IQueryResolvers
+    public abstract class QueryResolvers<TObjectType> : IQueryController
     {
-        ValueTask<IResolveResult> Contact(ResolverContext context);
-    }
-    
-    public abstract class QueryResolvers<TObjectType>: IQueryResolvers
-    {
+       
         public virtual async ValueTask<IResolveResult> Contact(ResolverContext context)
         {
             var parent = (TObjectType)context.ObjectValue;

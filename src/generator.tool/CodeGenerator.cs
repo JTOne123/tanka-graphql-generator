@@ -17,17 +17,19 @@ namespace Tanka.GraphQL.Generator.Tool
     {
         private readonly string _inputFile;
         private readonly string _outputFolder;
+        private readonly string _targetNamespace;
 
-        public CodeGenerator(string inputFile, string outputFolder)
+        public CodeGenerator(string inputFile, string outputFolder, string targetNamespace)
         {
             _inputFile = inputFile;
             _outputFolder = outputFolder;
+            _targetNamespace = targetNamespace;
         }
 
         public async Task<CompilationUnitSyntax> Generate()
         {
             var schema = await LoadSchema();
-            var nsName = Path.GetFileNameWithoutExtension(_inputFile);
+            var nsName = _targetNamespace;
 
             var unit = CompilationUnit()
                 .WithUsings(List(GenerateUsings()))
@@ -41,12 +43,12 @@ namespace Tanka.GraphQL.Generator.Tool
 
         private IEnumerable<UsingDirectiveSyntax> GenerateUsings()
         {
-            return
-                List(new[]
+            return new[]
                 {
+                    UsingDirective(ParseName("System.Threading.Tasks")),
                     UsingDirective(ParseName("Tanka.GraphQL")),
                     UsingDirective(ParseName("Tanka.GraphQL.ValueResolution"))
-                });
+                };
         }
 
         private IEnumerable<MemberDeclarationSyntax> GenerateTypes(ISchema schema)

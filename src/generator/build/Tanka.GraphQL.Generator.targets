@@ -11,17 +11,17 @@
 	</ItemGroup>
 
 	<PropertyGroup>
-
-		<CoreCompileDependsOn>
-			GenerateTankaSchema;
-			$(CoreCompileDependsOn)
-		</CoreCompileDependsOn>		
+    <GenerateTankaSchemaDependsOn>
+      $(GenerateTankaSchemaDependsOn);
+      ResolveReferences;
+		</GenerateTankaSchemaDependsOn>		
 		
 	</PropertyGroup>
 	
 	<Target 
 		Name="GenerateTankaSchema" 
-		BeforeTargets="BeforeBuild"
+    DependsOnTargets="$(GenerateTankaSchemaDependsOn)"
+		BeforeTargets="CoreCompile;PrepareResources"
 		Condition="'@(TankaSchema)' != ''"
 	>
 
@@ -38,14 +38,14 @@
       Command="$(TankaGeneratorToolCommand)"
 			OutputPath="$(CodeGenerationRoot)"
 			InputFiles="@(TankaSchema)"
+      RootNamespace="$(RootNamespace)"
 		>
-			<!--<Output TaskParameter="OutputFiles" ItemName="ResourceCodeFile"/>
-			<Output TaskParameter="OutputResources" ItemName="ResourceResFile"/>-->
-		</SchemaGenerator>
+			<Output TaskParameter="OutputFiles" ItemName="SchemaCode"/>
+    </SchemaGenerator>
 
-		<!--<ItemGroup>
-			<Compile Include="@(ResourceCodeFile)"/>
-		</ItemGroup>-->
+		<ItemGroup>
+			<Compile Include="@(SchemaCode)"/>
+		</ItemGroup>
 		
 	</Target>
 

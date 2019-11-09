@@ -1,0 +1,19 @@
+﻿type Contact {
+    id: ID!
+    firstName: String!
+    lastName: String!
+    address: Address
+}
+
+type Address {
+    city: String!
+    country: String!
+}
+
+type Query {
+    contact(id: ID!): Contact
+}
+
+schema {
+    query: Query
+}

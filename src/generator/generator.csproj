@@ -8,6 +8,11 @@
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <AssemblyName>tanka.graphql.generator</AssemblyName>
     <RootNamespace>Tanka.GraphQL.Generator</RootNamespace>
+    <Authors>Pekka Heikura &lt;pekkah@gmail.com&gt;</Authors>
+    <PackageProjectUrl>https://github.com/pekkah/tanka-graphql-generator</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/pekkah/tanka-graphql-generator</RepositoryUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
