@@ -4,6 +4,7 @@
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <AssemblyName>tanka.graphql.generator.samples.prototype</AssemblyName>
     <RootNamespace>Tanka.GraphQL.Generator.Samples.Prototype</RootNamespace>
+    <IsPackable>false</IsPackable>
   </PropertyGroup>
 
   <PropertyGroup>
