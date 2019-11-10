@@ -33,8 +33,7 @@ steps:
     projects: '**/*Tests/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
-- script: dotnet pack **/generator.tool.csproj /p:PackageVersion=$(version) -o $(Build.ArtifactStagingDirectory)/nuget
-- script: dotnet pack **/generator.csproj /p:PackageVersion=$(version) -o $(Build.ArtifactStagingDirectory)/nuget
+- script: dotnet pack /p:PackageVersion=$(version) -o $(Build.ArtifactStagingDirectory)/nuget
 
 - task: PublishBuildArtifacts@1
   inputs:
