@@ -54,7 +54,13 @@ namespace Tanka.GraphQL.Generator.Tool
         private IEnumerable<MemberDeclarationSyntax> GenerateTypes(ISchema schema)
         {
             return schema.QueryTypes<ObjectType>()
-                .SelectMany(objectType => GenerateType(objectType, schema));
+                .SelectMany(objectType => GenerateType(objectType, schema))
+                .Concat(GenerateSchema(schema));
+        }
+
+        private IEnumerable<MemberDeclarationSyntax> GenerateSchema(ISchema schema)
+        {
+            yield return new SchemaResolversGenerator(schema).Generate();
         }
 
         private IEnumerable<MemberDeclarationSyntax> GenerateType(ObjectType objectType, ISchema schema)

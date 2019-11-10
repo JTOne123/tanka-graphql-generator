@@ -14,33 +14,11 @@ namespace Tanka.GraphQL.Generator.Samples.Prototype.CRM
         }
     }
 
-    public class SchemaResolvers : ObjectTypeMap
+    public class QueryController : IQueryController
     {
-        public SchemaResolvers()
+        public ValueTask<IResolveResult> Contact(ResolverContext context)
         {
-            this["Query"] = new QueryResolverMap();
+            throw new System.NotImplementedException();
         }
-    }
-
-    public class QueryResolverMap : FieldResolversMap
-    {
-        public QueryResolverMap()
-        {
-            Add("field1", context => context.Use<IQueryController>().Contact(context));
-            Add("field2", context => context.Use<IQueryController>().Contact(context));
-        }
-    }
-
-
-    public class QueryController : QueryControllerBase<Query>
-    {
-        public override ValueTask<object> Contact(Query parent, ResolverContext context)
-        {
-            return default;
-        }
-    }
-
-    public class Query
-    {
     }
 }
