@@ -30,8 +30,4 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>
-
-	<ItemGroup>
-	  <ProjectReference Include="..\..\src\generator\generator.csproj" />
-	</ItemGroup>
 </Project>

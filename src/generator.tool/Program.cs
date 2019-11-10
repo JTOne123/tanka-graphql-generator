@@ -33,7 +33,7 @@ namespace Tanka.GraphQL.Generator.Tool
                 var sourceText = unit.ToFullString();
 
                 var schemaName = Path.GetFileNameWithoutExtension(inputFile);
-                var path = Path.Combine(output, $"{schemaName}.g.cs");
+                var path = Path.Combine(output, $"{opts.Namespace}.{schemaName}.g.cs");
 
                 Directory.CreateDirectory(output);
                 await File.WriteAllTextAsync(path, sourceText);

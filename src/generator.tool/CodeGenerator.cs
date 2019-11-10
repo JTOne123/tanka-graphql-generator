@@ -3,12 +3,11 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Tanka.GraphQL.Generator.Tool.Generators;
 using Tanka.GraphQL.SchemaBuilding;
 using Tanka.GraphQL.SDL;
 using Tanka.GraphQL.TypeSystem;
-using Tanka.GraphQL.ValueResolution;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Tanka.GraphQL.Generator.Tool
@@ -47,54 +46,24 @@ namespace Tanka.GraphQL.Generator.Tool
                 {
                     UsingDirective(ParseName("System.Threading.Tasks")),
                     UsingDirective(ParseName("Tanka.GraphQL")),
-                    UsingDirective(ParseName("Tanka.GraphQL.ValueResolution"))
+                    UsingDirective(ParseName("Tanka.GraphQL.ValueResolution")),
+                    UsingDirective(ParseName("Tanka.GraphQL.Server"))
                 };
         }
 
         private IEnumerable<MemberDeclarationSyntax> GenerateTypes(ISchema schema)
         {
             return schema.QueryTypes<ObjectType>()
-                .Select(objectType => GenerateType(objectType, schema));
+                .SelectMany(objectType => GenerateType(objectType, schema));
         }
 
-        private MemberDeclarationSyntax GenerateType(ObjectType objectType, ISchema schema)
+        private IEnumerable<MemberDeclarationSyntax> GenerateType(ObjectType objectType, ISchema schema)
         {
-            var typeName = objectType.Name.ToControllerName().ToInterfaceName();
-            return InterfaceDeclaration(typeName)
-                .WithModifiers(
-                    TokenList(
-                        Token(SyntaxKind.PublicKeyword)))
-                .WithMembers(List(GenerateFields(objectType, schema)));
+            yield return new ControllerInterfaceGenerator(objectType, schema).Generate();
+            yield return new AbstractControllerBaseGenerator(objectType, schema).Generate();
+            yield return new FieldResolversGenerator(objectType, schema).Generate();
         }
-
-        private IEnumerable<MemberDeclarationSyntax> GenerateFields(ObjectType objectType, ISchema schema)
-        {
-            return schema.GetFields(objectType.Name)
-                .Select(field => GenerateField(objectType, field, schema));
-        }
-
-        private MemberDeclarationSyntax GenerateField(ObjectType objectType, in KeyValuePair<string, IField> field,
-            ISchema schema)
-        {
-            var methodName = field.Key.Capitalize();
-            return MethodDeclaration(
-                    GenericName(Identifier(nameof(ValueTask)))
-                        .WithTypeArgumentList(
-                            TypeArgumentList(
-                                SingletonSeparatedList<TypeSyntax>(
-                                    IdentifierName(nameof(IResolveResult))))),
-                    Identifier(methodName))
-                .WithParameterList(
-                    ParameterList(
-                        SingletonSeparatedList(
-                            Parameter(
-                                    Identifier("context"))
-                                .WithType(
-                                    IdentifierName(nameof(ResolverContext))))))
-                .WithSemicolonToken(
-                    Token(SyntaxKind.SemicolonToken));
-        }
-
+        
         private async Task<ISchema> LoadSchema()
         {
             var content = await File.ReadAllTextAsync(_inputFile);
