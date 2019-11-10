@@ -13,6 +13,7 @@ type Address {
 
 type Query {
     contact(id: ID!): Contact
+	contacts(first: ID!, count: Int!): [Contact!]!
 }
 
 schema {
