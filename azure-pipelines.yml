@@ -23,7 +23,9 @@ steps:
   displayName: Build
   inputs:
     command: build
-    projects: '**/*.csproj'
+    projects: |
+      **/generator.csproj
+      **/generator.tool.csproj
     arguments: '--configuration Release' # Update this to match your need
 - task: DotNetCoreCLI@2
   inputs:
