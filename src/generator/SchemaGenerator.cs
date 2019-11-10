@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Json;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Build.Framework;
@@ -13,20 +11,17 @@ namespace Tanka.GraphQL.Generator
 {
     public class SchemaGenerator : Task
     {
-        [Required]
-        public string OutputPath { get; set; }
+        [Required] public string OutputPath { get; set; }
 
-        [Required]
-        public string Command { get; set; }
+        [Required] public string Command { get; set; }
 
-        [Required]
-        public string RootNamespace { get; set; }
+        public string CommandArgs { get; set; }
 
-        [Required]
-        public ITaskItem[] InputFiles { get; set; }
+        [Required] public string RootNamespace { get; set; }
 
-        [Output] 
-        public ITaskItem[] OutputFiles { get; set; }
+        [Required] public ITaskItem[] InputFiles { get; set; }
+
+        [Output] public ITaskItem[] OutputFiles { get; set; }
 
         public override bool Execute()
         {
@@ -34,21 +29,30 @@ namespace Tanka.GraphQL.Generator
                 return true;
 
             var outputFiles = new List<ITaskItem>();
-            for (int i = 0; i < InputFiles.Length; i++)
+            for (var i = 0; i < InputFiles.Length; i++)
             {
                 var inputFile = InputFiles[i];
                 var filePath = Path.GetFullPath(inputFile.ItemSpec);
-                
+
                 // build command line
                 var argsBuilder = new StringBuilder();
-                argsBuilder.Append(Command);
 
-                if (!Command.EndsWith(" "))
+                // first part of the command is the executable
+
+                var exe = Command;
+                var args = CommandArgs;
+                Log.LogMessage($"Exe: '{exe}'");
+                Log.LogMessage($"Args: '{args}'");
+
+                if (!string.IsNullOrEmpty(args))
+                    argsBuilder.Append(args);
+
+                if (!exe.EndsWith(" "))
                     argsBuilder.Append(" ");
 
                 var ns = Path.GetDirectoryName(inputFile.ItemSpec)
                     .Replace(Path.DirectorySeparatorChar, '.');
-                    
+
                 var schemaNamespace = $"{RootNamespace}.{ns}";
                 argsBuilder.Append($"-n {schemaNamespace} ");
 
@@ -57,7 +61,7 @@ namespace Tanka.GraphQL.Generator
                 argsBuilder.Append("-f ");
                 argsBuilder.Append(filePath);
 
-                var startInfo = new ProcessStartInfo("dotnet")
+                var startInfo = new ProcessStartInfo(exe)
                 {
                     Arguments = argsBuilder.ToString(),
                     UseShellExecute = false,
@@ -71,20 +75,30 @@ namespace Tanka.GraphQL.Generator
                 result.WaitForExit();
 
                 var output = result.StandardOutput.ReadToEnd();
+                var error = result.StandardError.ReadToEnd();
                 if (result.ExitCode > 0)
                 {
-                    var error = result.StandardError.ReadToEnd();
                     Log.LogError(
                         $"Failed to execute generator command 'dotnet {startInfo.Arguments}'.\nError: {error}\n Output: {output}");
                     return false;
                 }
 
-                var files = JsonSerializer.Deserialize<List<string>>(output);
+                Log.LogMessage($"Output: {output}");
 
-                foreach (var outputFile in files)
+                try
                 {
-                    outputFiles.Add(new TaskItem(outputFile));
-                    Log.LogMessage($"Out: {outputFile}");
+                    var files = JsonSerializer.Deserialize<List<string>>(output);
+
+                    foreach (var outputFile in files)
+                    {
+                        outputFiles.Add(new TaskItem(outputFile));
+                        Log.LogMessage($"Out: {outputFile}");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Log.LogError($"Failed to parse output from generator tool. Error: {e}, Error: {error}.");
+                    return false;
                 }
             }
 

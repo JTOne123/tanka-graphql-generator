@@ -17,10 +17,9 @@
 		</GenerateTankaSchemaDependsOn>		
 		
 	</PropertyGroup>
-	
+  <!--DependsOnTargets="$(GenerateTankaSchemaDependsOn)"-->
 	<Target 
 		Name="GenerateTankaSchema" 
-    DependsOnTargets="$(GenerateTankaSchemaDependsOn)"
 		BeforeTargets="CoreCompile;PrepareResources"
 		Condition="'@(TankaSchema)' != ''"
 	>
@@ -29,13 +28,9 @@
 			<CodeGenerationRoot>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)</CodeGenerationRoot>
 		</PropertyGroup>
 
-		<!--<ItemGroup>
-			<TankaSchemaTemp Include="@(TankaSchema)"/>
-			<TankaSchema Remove="@(TankaSchema)"/>
-		</ItemGroup>
-  -->
 		<SchemaGenerator
       Command="$(TankaGeneratorToolCommand)"
+      CommandArgs="$(TankaGeneratorToolCommandArgs)"
 			OutputPath="$(CodeGenerationRoot)"
 			InputFiles="@(TankaSchema)"
       RootNamespace="$(RootNamespace)"

@@ -32,11 +32,12 @@ namespace Tanka.GraphQL.Generator.Tests
                 .Create()
                 //.SdkCsproj("project1.csproj")
                 .PropertyGroup()
-                //.Property("TankaSchemaTaskAssembly", "tanka.graphql.generator.dll")
+                .Property("TankaSchemaTaskAssembly", "../bin/Debug/netstandard2.0/tanka.graphql.generator.dll")
                 .Property("RootNamespace", "Tanka.GraphQL.Generator.Tests")
-                .Property("TankaGeneratorToolCommand", "run -p ../../../../../src/generator.tool/generator.tool.csproj -- ")
-                .Import("build\\Tanka.GraphQL.Generator.props")
-                .Import("build\\Tanka.GraphQL.Generator.targets");
+                .Property("TankaGeneratorToolCommand", "dotnet")
+                .Property("TankaGeneratorToolCommandArgs", " run -p ../../../../../src/generator.tool/generator.tool.csproj -- ")
+                .Import("../../../../../src/generator/build/Tanka.GraphQL.Generator.props")
+                .Import("../../../../../src/generator/build/Tanka.GraphQL.Generator.targets");
                 //.ItemInclude("TankaSchema", "Data/Schema.graphql");
 
             project.TryBuild(out var success, out var log);

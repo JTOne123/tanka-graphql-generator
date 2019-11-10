@@ -7,11 +7,6 @@
     <AssemblyName>tanka.graphql.generator.tool</AssemblyName>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-tanka-graphql</ToolCommandName>
-    <Authors>Pekka Heikura &lt;pekkah@gmail.com&gt;</Authors>
-    <PackageProjectUrl>https://github.com/pekkah/tanka-graphql-generator</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/pekkah/tanka-graphql-generator</RepositoryUrl>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
