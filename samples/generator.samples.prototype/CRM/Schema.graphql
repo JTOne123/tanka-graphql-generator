@@ -1,0 +1,13 @@
+﻿type Contact {
+	firstName: String!
+	lastName: String!
+}
+
+type Query {
+	contact(id: ID!): Contact
+	contacts: [Contact!]!
+}
+
+schema {
+	query: Query
+}

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Tanka.GraphQL.SchemaBuilding;
 using Tanka.GraphQL.TypeSystem;
 using Tanka.GraphQL.ValueResolution;
 
@@ -11,9 +12,9 @@ namespace Tanka.GraphQL.Generator.Tool.Generators
     public class ControllerInterfaceGenerator
     {
         private readonly ObjectType _objectType;
-        private readonly ISchema _schema;
+        private readonly SchemaBuilder _schema;
 
-        public ControllerInterfaceGenerator(ObjectType objectType, ISchema schema)
+        public ControllerInterfaceGenerator(ObjectType objectType, SchemaBuilder schema)
         {
             _objectType = objectType;
             _schema = schema;
@@ -29,14 +30,20 @@ namespace Tanka.GraphQL.Generator.Tool.Generators
                 .WithMembers(SyntaxFactory.List(GenerateFields(_objectType, _schema)));
         }
 
-        private IEnumerable<MemberDeclarationSyntax> GenerateFields(ObjectType objectType, ISchema schema)
+        private IEnumerable<MemberDeclarationSyntax> GenerateFields(ObjectType objectType, SchemaBuilder schema)
         {
-            return schema.GetFields(objectType.Name)
-                .Select(field => GenerateField(objectType, field, schema));
+            var members = new List<MemberDeclarationSyntax>();
+            schema.Connections(connections =>
+            {
+                members = connections.GetFields(objectType)
+                    .Select(field => GenerateField(objectType, field, schema))
+                    .ToList();
+            });
+            return members;
         }
 
         private MemberDeclarationSyntax GenerateField(ObjectType objectType, in KeyValuePair<string, IField> field,
-            ISchema schema)
+            SchemaBuilder schema)
         {
             var methodName = field.Key.Capitalize();
             return SyntaxFactory.MethodDeclaration(

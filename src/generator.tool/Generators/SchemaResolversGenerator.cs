@@ -3,6 +3,7 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Tanka.GraphQL.SchemaBuilding;
 using Tanka.GraphQL.TypeSystem;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
@@ -10,9 +11,9 @@ namespace Tanka.GraphQL.Generator.Tool.Generators
 {
     internal class SchemaResolversGenerator
     {
-        private readonly ISchema _schema;
+        private readonly SchemaBuilder _schema;
 
-        public SchemaResolversGenerator(ISchema schema)
+        public SchemaResolversGenerator(SchemaBuilder schema)
         {
             _schema = schema;
         }
@@ -40,8 +41,8 @@ namespace Tanka.GraphQL.Generator.Tool.Generators
 
         private IEnumerable<StatementSyntax> WithAddObjectResolvers()
         {
-            var objectTypes = _schema.QueryTypes<ObjectType>();
-            return objectTypes.Select(objectType => WithAddObjectFieldResolvers(objectType));
+            var objectTypes = _schema.GetTypes<ObjectType>();
+            return objectTypes.Select(WithAddObjectFieldResolvers);
         }
 
         private StatementSyntax WithAddObjectFieldResolvers(ObjectType objectType)

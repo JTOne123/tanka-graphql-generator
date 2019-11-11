@@ -51,31 +51,30 @@ namespace Tanka.GraphQL.Generator.Tool
                 };
         }
 
-        private IEnumerable<MemberDeclarationSyntax> GenerateTypes(ISchema schema)
+        private IEnumerable<MemberDeclarationSyntax> GenerateTypes(SchemaBuilder schema)
         {
-            return schema.QueryTypes<ObjectType>()
+            return schema.GetTypes<ObjectType>()
                 .SelectMany(objectType => GenerateType(objectType, schema))
                 .Concat(GenerateSchema(schema));
         }
 
-        private IEnumerable<MemberDeclarationSyntax> GenerateSchema(ISchema schema)
+        private IEnumerable<MemberDeclarationSyntax> GenerateSchema(SchemaBuilder schema)
         {
             yield return new SchemaResolversGenerator(schema).Generate();
         }
 
-        private IEnumerable<MemberDeclarationSyntax> GenerateType(ObjectType objectType, ISchema schema)
+        private IEnumerable<MemberDeclarationSyntax> GenerateType(ObjectType objectType, SchemaBuilder schema)
         {
             yield return new ControllerInterfaceGenerator(objectType, schema).Generate();
             yield return new AbstractControllerBaseGenerator(objectType, schema).Generate();
             yield return new FieldResolversGenerator(objectType, schema).Generate();
         }
         
-        private async Task<ISchema> LoadSchema()
+        private async Task<SchemaBuilder> LoadSchema()
         {
             var content = await File.ReadAllTextAsync(_inputFile);
             return new SchemaBuilder()
-                .Sdl(content)
-                .Build();
+                .Sdl(content);
         }
     }
 }
