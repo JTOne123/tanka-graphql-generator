@@ -10,35 +10,41 @@
     <AvailableItemName Include="TankaSchema"/>
 	</ItemGroup>
 
+  <Target Name="BeforeGenerateTankaSchema">
+    <PropertyGroup>
+      <CodeGenerationRoot Condition="'$(CodeGenerationRoot)' == ''">$(MSBuildProjectDirectory)\$(IntermediateOutputPath)</CodeGenerationRoot>
+    </PropertyGroup>
+    <Message Text="CodeGenerationRoot: $(CodeGenerationRoot)" Importance="High"/>
+    <ItemGroup>
+      <TankaSchema Update="@(TankaSchema)">
+        <Code>$(CodeGenerationRoot)%(Code)</Code>
+      </TankaSchema>
+    </ItemGroup>
+  </Target>
+
 	<PropertyGroup>
     <GenerateTankaSchemaDependsOn>
       $(GenerateTankaSchemaDependsOn);
-      ResolveReferences;
-		</GenerateTankaSchemaDependsOn>		
-		
-	</PropertyGroup>
-  <!--DependsOnTargets="$(GenerateTankaSchemaDependsOn)"-->
-	<Target 
+      BeforeGenerateTankaSchema;
+    </GenerateTankaSchemaDependsOn>		
+  </PropertyGroup>
+  <Target 
 		Name="GenerateTankaSchema" 
 		BeforeTargets="CoreCompile;PrepareResources"
-		Condition="'@(TankaSchema)' != ''"
+    DependsOnTargets="BeforeGenerateTankaSchema"
+    Condition="'@(TankaSchema)' != ''"
+    Inputs="@(TankaSchema)"
+    Outputs="@(TankaSchema -> '%(Code)')"
 	>
-
-		<PropertyGroup>
-			<CodeGenerationRoot>$(MSBuildProjectDirectory)\$(IntermediateOutputPath)</CodeGenerationRoot>
-		</PropertyGroup>
-
-		<SchemaGenerator
+    <SchemaGenerator
       Command="$(TankaGeneratorToolCommand)"
       CommandArgs="$(TankaGeneratorToolCommandArgs)"
-			OutputPath="$(CodeGenerationRoot)"
-			InputFiles="@(TankaSchema)"
+      InputFiles="@(TankaSchema)"
       RootNamespace="$(RootNamespace)"
 		>
 			<Output TaskParameter="OutputFiles" ItemName="SchemaCode"/>
     </SchemaGenerator>
-
-		<ItemGroup>
+    <ItemGroup>
 			<Compile Include="@(SchemaCode)"/>
 		</ItemGroup>
 		

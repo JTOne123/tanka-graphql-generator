@@ -15,13 +15,11 @@ namespace Tanka.GraphQL.Generator.Core
     public class CodeGenerator
     {
         private readonly string _inputFile;
-        private readonly string _outputFolder;
         private readonly string _targetNamespace;
 
-        public CodeGenerator(string inputFile, string outputFolder, string targetNamespace)
+        public CodeGenerator(string inputFile, string targetNamespace)
         {
             _inputFile = inputFile;
-            _outputFolder = outputFolder;
             _targetNamespace = targetNamespace;
         }
 

@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Data.SqlTypes;
 using System.IO;
-using System.Text.Json;
 using System.Threading.Tasks;
 using CommandLine;
 using Tanka.GraphQL.Generator.Core;
-using Tanka.GraphQL.TypeSystem;
 
 namespace Tanka.GraphQL.Generator.Tool
 {
@@ -24,24 +20,25 @@ namespace Tanka.GraphQL.Generator.Tool
 
         private static async Task<int> RunGenerateCommand(GenerateCommandOptions opts)
         {
-            var output = Path.GetFullPath(opts.OutputFolder);
-
-            var files = new List<string>();
-            foreach (var inputFile in opts.InputFiles)
+            try
             {
-                var generator = new CodeGenerator(inputFile, opts.OutputFolder, opts.Namespace);
+                var input = Path.GetFullPath(opts.InputFile);
+                var output = Path.GetFullPath(opts.OutputFile);
+
+
+                var generator = new CodeGenerator(input, opts.Namespace);
                 var unit = await generator.Generate();
                 var sourceText = unit.ToFullString();
 
-                var schemaName = Path.GetFileNameWithoutExtension(inputFile);
-                var path = Path.Combine(output, $"{opts.Namespace}.{schemaName}.g.cs");
-
-                Directory.CreateDirectory(output);
-                await File.WriteAllTextAsync(path, sourceText);
-                files.Add(path);
+                Directory.CreateDirectory(Path.GetDirectoryName(output));
+                await File.WriteAllTextAsync(output, sourceText);
+            }
+            catch (Exception e)
+            {
+                Console.Error.WriteLine(e);
+                return 1;
             }
 
-            Console.WriteLine(JsonSerializer.Serialize(files));
 
             return 0;
         }

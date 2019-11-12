@@ -1,16 +1,15 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <Project
 	xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
-	<PropertyGroup>
-		<TankaSchemaTaskAssembly Condition="'$(TankaSchemaTaskAssembly)' == ''">../Tanka.GraphQL.Generator.dll</TankaSchemaTaskAssembly>
+  <PropertyGroup>
+		<TankaSchemaTaskAssembly Condition="'$(TankaSchemaTaskAssembly)' == ''">..\Tanka.GraphQL.Generator.dll</TankaSchemaTaskAssembly>
     <TankaGeneratorToolCommand Condition="'$(TankaGeneratorToolCommand)' == ''">dotnet</TankaGeneratorToolCommand>
-    <TankaGeneratorToolCommandArgs Condition="'$(TankaGeneratorToolCommand)' == ''"> tanka-graphql</TankaGeneratorToolCommandArgs>
+    <TankaGeneratorToolCommandArgs Condition="'$(TankaGeneratorToolCommandArgs)' == ''">tanka-graphql</TankaGeneratorToolCommandArgs>
   </PropertyGroup>
-
-	<ItemDefinitionGroup>
+  <ItemDefinitionGroup>
 		<TankaSchema>
 			<Generator>MSBuild:GenerateTankaSchema</Generator>
+      <Code>%(RelativeDir)%(Filename).g.cs</Code>
 		</TankaSchema>
 	</ItemDefinitionGroup>
 

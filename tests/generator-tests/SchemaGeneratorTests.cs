@@ -1,4 +1,5 @@
-﻿using Microsoft.Build.Utilities.ProjectCreation;
+﻿using System.IO;
+using Microsoft.Build.Utilities.ProjectCreation;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -15,14 +16,17 @@ namespace Tanka.GraphQL.Generator.Tests
 
         private void WriteLog(BuildOutput log)
         {
-            _output.WriteLine("Errors");
-            if (log.Succeeded == false)
-                foreach (var error in log.Errors)
-                    _output.WriteLine(error);
-
-            _output.WriteLine("");
+            
             _output.WriteLine("Messages");
             foreach (var message in log.Messages) _output.WriteLine(message);
+
+            if (log.Succeeded == false)
+            {
+                _output.WriteLine("");
+                _output.WriteLine("Errors");
+                foreach (var error in log.Errors)
+                    _output.WriteLine(error);
+            }
         }
 
         [Fact]
@@ -32,10 +36,11 @@ namespace Tanka.GraphQL.Generator.Tests
                 .Create()
                 //.SdkCsproj("project1.csproj")
                 .PropertyGroup()
+                .Property("CodeGenerationRoot", Path.GetTempPath())
                 .Property("TankaSchemaTaskAssembly", "../bin/Debug/netstandard2.0/tanka.graphql.generator.dll")
                 .Property("RootNamespace", "Tanka.GraphQL.Generator.Tests")
-                .Property("TankaGeneratorToolCommand", "dotnet")
-                .Property("TankaGeneratorToolCommandArgs", " run -p ../../../../../src/generator.tool/generator.tool.csproj -- ")
+                .Property("TankaGeneratorToolCommand", "../../../../../src/generator.tool/bin/Debug/netcoreapp3.0/tanka.graphql.generator.tool.exe")
+                .Property("TankaGeneratorToolCommandArgs", "")
                 .Import("../../../../../src/generator/build/Tanka.GraphQL.Generator.props")
                 .Import("../../../../../src/generator/build/Tanka.GraphQL.Generator.targets");
                 //.ItemInclude("TankaSchema", "Data/Schema.graphql");

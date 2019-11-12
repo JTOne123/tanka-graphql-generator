@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
@@ -11,8 +10,6 @@ namespace Tanka.GraphQL.Generator
 {
     public class SchemaGenerator : Task
     {
-        [Required] public string OutputPath { get; set; }
-
         [Required] public string Command { get; set; }
 
         public string CommandArgs { get; set; }
@@ -29,82 +26,115 @@ namespace Tanka.GraphQL.Generator
                 return true;
 
             var outputFiles = new List<ITaskItem>();
-            for (var i = 0; i < InputFiles.Length; i++)
+            foreach (var inputFile in InputFiles)
             {
-                var inputFile = InputFiles[i];
-                var filePath = Path.GetFullPath(inputFile.ItemSpec);
+                var output = RunGenerator(inputFile);
 
-                // build command line
-                var argsBuilder = new StringBuilder();
-
-                // first part of the command is the executable
-
-                var exe = Command;
-                var args = CommandArgs;
-                Log.LogMessage($"Exe: '{exe}'");
-                Log.LogMessage($"Args: '{args}'");
-
-                if (!string.IsNullOrEmpty(args))
-                    argsBuilder.Append(args);
-
-                if (!exe.EndsWith(" "))
-                    argsBuilder.Append(" ");
-
-                var ns = Path.GetDirectoryName(inputFile.ItemSpec)
-                    .Replace(Path.DirectorySeparatorChar, '.');
-
-                var schemaNamespace = $"{RootNamespace}.{ns}";
-                argsBuilder.Append($"-n {schemaNamespace} ");
-
-                argsBuilder.Append($"-o {OutputPath} ");
-
-                argsBuilder.Append("-f ");
-                argsBuilder.Append(filePath);
-
-                var startInfo = new ProcessStartInfo(exe)
-                {
-                    Arguments = argsBuilder.ToString(),
-                    UseShellExecute = false,
-                    RedirectStandardOutput = true,
-                    RedirectStandardError = true
-                };
-
-                Log.LogCommandLine($"dotnet {startInfo.Arguments}");
-
-                var result = Process.Start(startInfo);
-                result.WaitForExit();
-
-                var output = result.StandardOutput.ReadToEnd();
-                var error = result.StandardError.ReadToEnd();
-                if (result.ExitCode > 0)
-                {
-                    Log.LogError(
-                        $"Failed to execute generator command 'dotnet {startInfo.Arguments}'.\nError: {error}\n Output: {output}");
+                if (output == null)
                     return false;
-                }
 
-                Log.LogMessage($"Output: {output}");
-
-                try
-                {
-                    var files = JsonSerializer.Deserialize<List<string>>(output);
-
-                    foreach (var outputFile in files)
-                    {
-                        outputFiles.Add(new TaskItem(outputFile));
-                        Log.LogMessage($"Out: {outputFile}");
-                    }
-                }
-                catch (Exception e)
-                {
-                    Log.LogError($"Failed to parse output from generator tool. Error: {e}, Error: {error}.");
-                    return false;
-                }
+                outputFiles.Add(output);
             }
 
             OutputFiles = outputFiles.ToArray();
 
             return true;
+        }
+
+        private ITaskItem RunGenerator(ITaskItem inputFile)
+        {
+            var inputFilePath = Path.GetFullPath(inputFile.ItemSpec);
+            var outputItemSpec = inputFile.GetMetadata("Code");
+
+            if (string.IsNullOrEmpty(outputItemSpec))
+            {
+                Log.LogError($"Item {inputFile} is missing 'Code' metadata entry. Cannot generate code.");
+                return null;
+            }
+
+            var outputFilePath = outputItemSpec;
+
+            if (Path.IsPathRooted(outputFilePath))
+                outputFilePath = Path.GetFullPath(outputFilePath);
+
+            Log.LogMessage($"In: {inputFilePath}");
+            Log.LogMessage($"Out: {outputFilePath}");
+
+            var command = Command.Trim();
+            var args = GetCommandArgs(inputFilePath, outputFilePath, ToNamespace(inputFile.ItemSpec));
+            Log.LogCommandLine($"{command} {args}");
+
+            if (!RunGeneratorCommand(command, args))
+                return null;
+
+            return new TaskItem(outputFilePath);
+        }
+
+        private bool RunGeneratorCommand(string command, string args)
+        {
+            using var process = Process.Start(new ProcessStartInfo(command)
+            {
+                Arguments = args,
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            });
+
+            if (process == null)
+                return false;
+
+            process.WaitForExit();
+
+            var output = process.StandardOutput.ReadToEnd();
+            var error = process.StandardError.ReadToEnd();
+
+            if (!string.IsNullOrEmpty(output))
+                Log.LogMessage(output);
+
+            if (!string.IsNullOrEmpty(error))
+                Log.LogMessage(error);
+
+            if (process.ExitCode > 0)
+                return false;
+
+            return true;
+        }
+
+        private string ToNamespace(string itemSpec)
+        {
+            var dir = Path.GetDirectoryName(itemSpec);
+            return Regex.Replace(dir, "\\s+", "")
+                .Replace(Path.DirectorySeparatorChar, '.')
+                .Replace(Path.AltDirectorySeparatorChar, '.');
+        }
+
+        private string GetCommandArgs(string inputFilePath, string outputFilePath, string itemNamespace)
+        {
+            var builder = new StringBuilder();
+
+            // add args if given
+            if (!string.IsNullOrEmpty(CommandArgs))
+            {
+                builder.Append(CommandArgs.Trim());
+                builder.Append(" ");
+            }
+
+            // namespace
+            var ns = RootNamespace;
+            if (!string.IsNullOrEmpty(itemNamespace))
+                ns = $"{ns}.{itemNamespace}";
+
+            builder.Append($"-n {ns}");
+            builder.Append(" ");
+
+            // input
+            builder.Append($"-f {inputFilePath}");
+            builder.Append(" ");
+
+            // output
+            builder.Append($"-o {outputFilePath}");
+
+            return builder.ToString();
         }
     }
 }
