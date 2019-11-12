@@ -4,15 +4,15 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Tanka.GraphQL.Generator.Tool.Generators;
+using Tanka.GraphQL.Generator.Core.Generators;
 using Tanka.GraphQL.SchemaBuilding;
 using Tanka.GraphQL.SDL;
 using Tanka.GraphQL.TypeSystem;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Tanka.GraphQL.Generator.Tool
+namespace Tanka.GraphQL.Generator.Core
 {
-    internal class CodeGenerator
+    public class CodeGenerator
     {
         private readonly string _inputFile;
         private readonly string _outputFolder;
@@ -70,11 +70,13 @@ namespace Tanka.GraphQL.Generator.Tool
             yield return new FieldResolversGenerator(objectType, schema).Generate();
         }
         
-        private async Task<SchemaBuilder> LoadSchema()
+        private Task<SchemaBuilder> LoadSchema()
         {
-            var content = await File.ReadAllTextAsync(_inputFile);
-            return new SchemaBuilder()
+            var content = File.ReadAllText(_inputFile);
+            var builder = new SchemaBuilder()
                 .Sdl(content);
+
+            return Task.FromResult(builder);
         }
     }
 }

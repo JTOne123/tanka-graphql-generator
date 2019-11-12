@@ -5,6 +5,7 @@ using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
 using CommandLine;
+using Tanka.GraphQL.Generator.Core;
 using Tanka.GraphQL.TypeSystem;
 
 namespace Tanka.GraphQL.Generator.Tool

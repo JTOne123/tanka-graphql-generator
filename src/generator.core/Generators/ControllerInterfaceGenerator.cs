@@ -7,7 +7,7 @@ using Tanka.GraphQL.SchemaBuilding;
 using Tanka.GraphQL.TypeSystem;
 using Tanka.GraphQL.ValueResolution;
 
-namespace Tanka.GraphQL.Generator.Tool.Generators
+namespace Tanka.GraphQL.Generator.Core.Generators
 {
     public class ControllerInterfaceGenerator
     {

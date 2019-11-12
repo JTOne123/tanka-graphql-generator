@@ -9,7 +9,7 @@ using Tanka.GraphQL.TypeSystem;
 using Tanka.GraphQL.ValueResolution;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Tanka.GraphQL.Generator.Tool.Generators
+namespace Tanka.GraphQL.Generator.Core.Generators
 {
     public class AbstractControllerBaseGenerator
     {

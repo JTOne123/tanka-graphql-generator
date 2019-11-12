@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Tanka.GraphQL.Generator.Tool
+namespace Tanka.GraphQL.Generator.Core
 {
     public static class NameExtensions
     {

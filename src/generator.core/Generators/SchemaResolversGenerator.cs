@@ -7,9 +7,9 @@ using Tanka.GraphQL.SchemaBuilding;
 using Tanka.GraphQL.TypeSystem;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
-namespace Tanka.GraphQL.Generator.Tool.Generators
+namespace Tanka.GraphQL.Generator.Core.Generators
 {
-    internal class SchemaResolversGenerator
+    public class SchemaResolversGenerator
     {
         private readonly SchemaBuilder _schema;
 
