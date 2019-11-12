@@ -14,7 +14,6 @@
     <PropertyGroup>
       <CodeGenerationRoot Condition="'$(CodeGenerationRoot)' == ''">$(MSBuildProjectDirectory)\$(IntermediateOutputPath)</CodeGenerationRoot>
     </PropertyGroup>
-    <Message Text="CodeGenerationRoot: $(CodeGenerationRoot)" Importance="High"/>
     <ItemGroup>
       <TankaSchema Update="@(TankaSchema)">
         <Code>$(CodeGenerationRoot)%(Code)</Code>
@@ -31,11 +30,9 @@
   <Target 
 		Name="GenerateTankaSchema" 
 		BeforeTargets="CoreCompile;PrepareResources"
-    DependsOnTargets="BeforeGenerateTankaSchema"
+    DependsOnTargets="$(GenerateTankaSchemaDependsOn)"
     Condition="'@(TankaSchema)' != ''"
-    Inputs="@(TankaSchema)"
-    Outputs="@(TankaSchema -> '%(Code)')"
-	>
+  >
     <SchemaGenerator
       Command="$(TankaGeneratorToolCommand)"
       CommandArgs="$(TankaGeneratorToolCommandArgs)"
@@ -45,9 +42,7 @@
 			<Output TaskParameter="OutputFiles" ItemName="SchemaCode"/>
     </SchemaGenerator>
     <ItemGroup>
-			<Compile Include="@(SchemaCode)"/>
-		</ItemGroup>
-		
-	</Target>
-
+      <Compile Include="@(SchemaCode)"/>
+    </ItemGroup>
+  </Target>
 </Project>
