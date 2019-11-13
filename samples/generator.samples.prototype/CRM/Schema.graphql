@@ -1,6 +1,11 @@
 ﻿type Contact {
 	firstName: String!
 	lastName: String!
+	address: Address
+}
+
+type Address {
+	
 }
 
 type Query {

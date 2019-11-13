@@ -57,6 +57,24 @@ namespace Tanka.GraphQL.Generator
             if (Path.IsPathRooted(outputFilePath))
                 outputFilePath = Path.GetFullPath(outputFilePath);
 
+            // caching
+            if (File.Exists(outputFilePath))
+            {
+                var lastModified = File.GetLastWriteTimeUtc(inputFilePath);
+                var lastGenerated = File.GetLastWriteTimeUtc(outputFilePath);
+
+                // if file hasn't been changed since last time generated
+                if (lastModified < lastGenerated)
+                {
+                    Log.LogMessage(
+                        MessageImportance.High, 
+                        $"Input file '{inputFilePath}' hasn't changed since last time generated");
+
+                    // return existing file
+                    return new TaskItem(outputFilePath);
+                }
+            }
+
             Log.LogMessage($"In: {inputFilePath}");
             Log.LogMessage($"Out: {outputFilePath}");
 
