@@ -35,7 +35,8 @@
       Command="$(TankaGeneratorToolCommand)"
       CommandArgs="$(TankaGeneratorToolCommandArgs)"
       InputFiles="@(TankaSchema)"
-      RootNamespace="$(RootNamespace)">
+      RootNamespace="$(RootNamespace)"
+      Force="$(TankaGeneratorForce)">
 			<Output TaskParameter="OutputFiles" ItemName="SchemaCode"/>
     </SchemaGenerator>
     <ItemGroup>

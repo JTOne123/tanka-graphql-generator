@@ -55,6 +55,7 @@ namespace Tanka.GraphQL.Generator.Tests
                 .Property("TankaGeneratorToolCommand",
                     "../../../../../../src/generator.tool/bin/Debug/netcoreapp3.0/tanka.graphql.generator.tool.exe")
                 .Property("TankaGeneratorToolCommandArgs", "")
+                .Property("TankaGeneratorForce", "true")
                 .Import("../../../../../../src/generator/build/Tanka.GraphQL.Generator.props")
                 .Import("../../../../../../src/generator/build/Tanka.GraphQL.Generator.targets");
                 //.ItemInclude("TankaSchema", "Data/CRM.graphql");

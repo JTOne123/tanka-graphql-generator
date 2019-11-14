@@ -77,7 +77,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                     Identifier(methodName))
                 .WithModifiers(
                     TokenList(
-                        Token(SyntaxKind.PublicKeyword), 
+                        Token(SyntaxKind.PublicKeyword),
                         Token(SyntaxKind.VirtualKeyword),
                         Token(SyntaxKind.AsyncKeyword)))
                 .WithParameterList(
@@ -88,58 +88,120 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                 .WithType(
                                     IdentifierName(nameof(ResolverContext))))))
                 .WithBody(
-                     Block(
-                            LocalDeclarationStatement(
-                                VariableDeclaration(
+                    Block(
+                        LocalDeclarationStatement(
+                            VariableDeclaration(
                                     IdentifierName("var"))
                                 .WithVariables(
-                                    SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                    SingletonSeparatedList(
                                         VariableDeclarator(
-                                            Identifier("parent"))
-                                        .WithInitializer(
-                                            EqualsValueClause(
-                                                CastExpression(
-                                                    IdentifierName("T"),
-                                                    MemberAccessExpression(
-                                                        SyntaxKind.SimpleMemberAccessExpression,
-                                                        IdentifierName("context"),
-                                                        IdentifierName("ObjectValue")))))))),
-                            LocalDeclarationStatement(
-                                VariableDeclaration(
+                                                Identifier("parent"))
+                                            .WithInitializer(
+                                                EqualsValueClause(
+                                                    CastExpression(
+                                                        IdentifierName("T"),
+                                                        MemberAccessExpression(
+                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                            IdentifierName("context"),
+                                                            IdentifierName("ObjectValue")))))))),
+                        LocalDeclarationStatement(
+                            VariableDeclaration(
                                     IdentifierName("var"))
                                 .WithVariables(
-                                    SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                    SingletonSeparatedList(
                                         VariableDeclarator(
-                                            Identifier("result"))
-                                        .WithInitializer(
-                                            EqualsValueClause(
-                                                AwaitExpression(
-                                                    InvocationExpression(
-                                                        IdentifierName(methodName))
-                                                    .WithArgumentList(
-                                                        ArgumentList(
-                                                            SeparatedList<ArgumentSyntax>(
-                                                                new SyntaxNodeOrToken[]{
-                                                                    Argument(
-                                                                        IdentifierName("parent")),
-                                                                    Token(SyntaxKind.CommaToken),
-                                                                    Argument(
-                                                                        IdentifierName("context"))}))))))))),
-                            ReturnStatement(
-                                InvocationExpression(
+                                                Identifier("result"))
+                                            .WithInitializer(
+                                                EqualsValueClause(
+                                                    AwaitExpression(
+                                                        InvocationExpression(
+                                                                IdentifierName(methodName))
+                                                            .WithArgumentList(
+                                                                ArgumentList(
+                                                                    SeparatedList<ArgumentSyntax>(
+                                                                        new SyntaxNodeOrToken[]
+                                                                        {
+                                                                            Argument(
+                                                                                IdentifierName("parent")),
+                                                                            Token(SyntaxKind.CommaToken),
+                                                                            Argument(
+                                                                                IdentifierName("context"))
+                                                                        }))))))))),
+                        ReturnStatement(
+                            InvocationExpression(
                                     MemberAccessExpression(
                                         SyntaxKind.SimpleMemberAccessExpression,
                                         IdentifierName("Resolve"),
                                         IdentifierName("As")))
                                 .WithArgumentList(
                                     ArgumentList(
-                                        SingletonSeparatedList<ArgumentSyntax>(
+                                        SingletonSeparatedList(
                                             Argument(
                                                 IdentifierName("result")))))))
-                    )
+                )
                 .WithTrailingTrivia(CarriageReturnLineFeed);
 
-            yield return MethodDeclaration(
+            if (IsAbstract(objectType, field))
+                yield return WithAbstractFieldMethod(methodName, objectType, field);
+            else
+                yield return WithPropertyFieldMethod(methodName, objectType, field);
+        }
+
+        private bool IsAbstract(ObjectType objectType, KeyValuePair<string, IField> field)
+        {
+            var args = field.Value.Arguments;
+
+            // if field has arguments then automatically require implementation for it
+            if (args.Any())
+                return true;
+
+            var type = field.Value.Type;
+
+            // if complex type (Object, Interface) then requires implementation
+            if (type is ComplexType)
+                return true;
+
+            // unions require implementation as they require the actual graph type to be
+            // given
+            if (type is UnionType)
+                return true;
+
+            return false;
+        }
+
+        private MethodDeclarationSyntax WithAbstractFieldMethod(string methodName, ObjectType objectType,
+            KeyValuePair<string, IField> field)
+        {
+            return MethodDeclaration(
+                    GenericName(
+                            Identifier("ValueTask"))
+                        .WithTypeArgumentList(
+                            TypeArgumentList(
+                                SingletonSeparatedList<TypeSyntax>(
+                                    PredefinedType(
+                                        Token(SyntaxKind.ObjectKeyword))))),
+                    Identifier(methodName))
+                .WithModifiers(
+                    TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.AbstractKeyword)))
+                .WithParameterList(
+                    ParameterList(
+                        SeparatedList<ParameterSyntax>(
+                            new SyntaxNodeOrToken[]
+                            {
+                                Parameter(Identifier("parent"))
+                                    .WithType(IdentifierName("T")),
+                                Token(SyntaxKind.CommaToken),
+                                Parameter(Identifier("context"))
+                                    .WithType(IdentifierName("ResolverContext"))
+                            })))
+                .WithSemicolonToken(
+                    Token(SyntaxKind.SemicolonToken));
+        }
+
+        private MethodDeclarationSyntax WithPropertyFieldMethod(string methodName, ObjectType objectType,
+            KeyValuePair<string, IField> field)
+        {
+            return MethodDeclaration(
                     GenericName(
                             Identifier("ValueTask"))
                         .WithTypeArgumentList(

@@ -51,7 +51,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         private StatementSyntax WithAddObjectFieldResolvers(ObjectType objectType)
         {
             var objectName = objectType.Name;
-            var resolversName = $"{objectName}Resolvers";
+            var resolversName = objectName.ToFieldResolversName();
             return ExpressionStatement(
                 InvocationExpression(
                         IdentifierName("Add"))

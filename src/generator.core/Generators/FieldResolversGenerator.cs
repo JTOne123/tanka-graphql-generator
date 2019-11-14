@@ -22,7 +22,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
         public MemberDeclarationSyntax Generate()
         {
-            var name = $"{_objectType.Name}Resolvers";
+            var name = _objectType.Name.ToFieldResolversName();
 
             return ClassDeclaration(name)
                 .WithModifiers(

@@ -16,7 +16,7 @@ namespace Tanka.GraphQL.Generator.Core
     {
         private readonly string _inputFile;
         private readonly string _targetNamespace;
-        private string _schemaName;
+        private readonly string _schemaName;
 
         public CodeGenerator(string inputFile, string targetNamespace)
         {
@@ -53,8 +53,8 @@ namespace Tanka.GraphQL.Generator.Core
 
         private IEnumerable<MemberDeclarationSyntax> GenerateTypes(SchemaBuilder schema)
         {
-            return schema.GetTypes<ObjectType>()
-                .SelectMany(objectType => GenerateType(objectType, schema))
+            return schema.GetTypes<INamedType>()
+                .SelectMany(type => GenerateType(type, schema))
                 .Concat(GenerateSchema(schema));
         }
 
@@ -63,11 +63,9 @@ namespace Tanka.GraphQL.Generator.Core
             yield return new SchemaResolversGenerator(schema, _schemaName).Generate();
         }
 
-        private IEnumerable<MemberDeclarationSyntax> GenerateType(ObjectType objectType, SchemaBuilder schema)
+        private IEnumerable<MemberDeclarationSyntax> GenerateType(INamedType type, SchemaBuilder schema)
         {
-            yield return new ControllerInterfaceGenerator(objectType, schema).Generate();
-            yield return new AbstractControllerBaseGenerator(objectType, schema).Generate();
-            yield return new FieldResolversGenerator(objectType, schema).Generate();
+            return new NamedTypeGenerator(type, schema).Generate().ToList();
         }
         
         private Task<SchemaBuilder> LoadSchema()

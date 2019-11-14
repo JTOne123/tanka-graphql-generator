@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Tanka.GraphQL.SchemaBuilding;
 using Tanka.GraphQL.TypeSystem;
 using Tanka.GraphQL.ValueResolution;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Tanka.GraphQL.Generator.Core.Generators
 {
@@ -23,11 +24,11 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         public MemberDeclarationSyntax Generate()
         {
             var controllerInterfaceName = _objectType.Name.ToControllerName().ToInterfaceName();
-            return SyntaxFactory.InterfaceDeclaration(controllerInterfaceName)
+            return InterfaceDeclaration(controllerInterfaceName)
                 .WithModifiers(
-                    SyntaxFactory.TokenList(
-                        SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                .WithMembers(SyntaxFactory.List(GenerateFields(_objectType, _schema)));
+                    TokenList(
+                        Token(SyntaxKind.PublicKeyword)))
+                .WithMembers(List(GenerateFields(_objectType, _schema)));
         }
 
         private IEnumerable<MemberDeclarationSyntax> GenerateFields(ObjectType objectType, SchemaBuilder schema)
@@ -46,22 +47,22 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             SchemaBuilder schema)
         {
             var methodName = field.Key.Capitalize();
-            return SyntaxFactory.MethodDeclaration(
-                    SyntaxFactory.GenericName(SyntaxFactory.Identifier(nameof(ValueTask)))
+            return MethodDeclaration(
+                    GenericName(Identifier(nameof(ValueTask)))
                         .WithTypeArgumentList(
-                            SyntaxFactory.TypeArgumentList(
-                                SyntaxFactory.SingletonSeparatedList<TypeSyntax>(
-                                    SyntaxFactory.IdentifierName(nameof(IResolveResult))))),
-                    SyntaxFactory.Identifier(methodName))
+                            TypeArgumentList(
+                                SingletonSeparatedList<TypeSyntax>(
+                                    IdentifierName(nameof(IResolveResult))))),
+                    Identifier(methodName))
                 .WithParameterList(
-                    SyntaxFactory.ParameterList(
-                        SyntaxFactory.SingletonSeparatedList(
-                            SyntaxFactory.Parameter(
-                                    SyntaxFactory.Identifier("context"))
+                    ParameterList(
+                        SingletonSeparatedList(
+                            Parameter(
+                                    Identifier("context"))
                                 .WithType(
-                                    SyntaxFactory.IdentifierName(nameof(ResolverContext))))))
+                                    IdentifierName(nameof(ResolverContext))))))
                 .WithSemicolonToken(
-                    SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+                    Token(SyntaxKind.SemicolonToken));
         }
     }
 }

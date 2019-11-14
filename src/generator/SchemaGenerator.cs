@@ -16,6 +16,8 @@ namespace Tanka.GraphQL.Generator
 
         [Required] public string RootNamespace { get; set; }
 
+        public bool Force { get; set; }
+
         [Required] public ITaskItem[] InputFiles { get; set; }
 
         [Output] public ITaskItem[] OutputFiles { get; set; }
@@ -58,7 +60,7 @@ namespace Tanka.GraphQL.Generator
                 outputFilePath = Path.GetFullPath(outputFilePath);
 
             // caching
-            if (File.Exists(outputFilePath))
+            if (!Force && File.Exists(outputFilePath))
             {
                 var lastModified = File.GetLastWriteTimeUtc(inputFilePath);
                 var lastGenerated = File.GetLastWriteTimeUtc(outputFilePath);
@@ -110,7 +112,7 @@ namespace Tanka.GraphQL.Generator
                 Log.LogMessage(output);
 
             if (!string.IsNullOrEmpty(error))
-                Log.LogMessage(error);
+                Log.LogError(error);
 
             if (process.ExitCode > 0)
                 return false;

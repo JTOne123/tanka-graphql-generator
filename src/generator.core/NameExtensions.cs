@@ -15,6 +15,18 @@ namespace Tanka.GraphQL.Generator.Core
             return $"I{capitalized}";
         }
 
+        public static string ToModelName(this string name)
+        {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentException("Value cannot be null or empty.", nameof(name));
+
+            return name.Capitalize();
+        }
+
+        public static string ToFieldResolversName(this string name)
+        {
+            return $"{name}Fields";
+        }
+
         public static string Capitalize(this string name)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentException("Value cannot be null or empty.", nameof(name));

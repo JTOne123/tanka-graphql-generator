@@ -1,6 +1,20 @@
-﻿type Query {
-	names: [String!]!
+﻿type Contact {
+	firstName: String!
+	lastName: String!
+	homeAddress: Address
+	officeAddress: Address
+}
 
+type Address {
+	street: String!
+	zipCode: String!
+	city: String!
+	country: String!
+}
+
+type Query {
+	contact(id: ID!): Contact
+	contacts: [Contact!]!
 }
 
 schema {
