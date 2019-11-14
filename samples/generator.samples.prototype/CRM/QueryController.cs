@@ -18,32 +18,24 @@ namespace Tanka.GraphQL.Generator.Samples.Prototype.CRM
 
     public class ContactController: ContactControllerBase<Contact>
     {
-        public override ValueTask<object> FirstName(Contact parent, ResolverContext context)
+        public override ValueTask<string> FirstName(Contact parent, ResolverContext context)
         {
             throw new System.NotImplementedException();
         }
 
-        public override ValueTask<object> LastName(Contact parent, ResolverContext context)
+        public override ValueTask<string> LastName(Contact parent, ResolverContext context)
         {
             throw new System.NotImplementedException();
         }
 
-        public override ValueTask<object> HomeAddress(Contact parent, ResolverContext context)
+        public override ValueTask<Address> HomeAddress(Contact parent, ResolverContext context)
         {
             throw new System.NotImplementedException();
         }
 
-        public override ValueTask<object> OfficeAddress(Contact parent, ResolverContext context)
+        public override ValueTask<Address> OfficeAddress(Contact parent, ResolverContext context)
         {
             throw new System.NotImplementedException();
         }
     }
-
-    public class Contact
-    {
-
-    }
-
-
-    
 }

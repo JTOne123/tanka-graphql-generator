@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Reflection.Metadata.Ecma335;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -51,9 +52,9 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         private MemberDeclarationSyntax GenerateProperty(KeyValuePair<string, IField> field)
         {
             var propertyName = field.Key.Capitalize();
+            var typeName = SelectFieldType(field.Value);
             return PropertyDeclaration(
-                    PredefinedType(
-                        Token(SyntaxKind.ObjectKeyword)),
+                    IdentifierName(typeName),
                     Identifier(propertyName))
                 .WithModifiers(
                     TokenList(
@@ -73,5 +74,46 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                         Token(SyntaxKind.SemicolonToken))
                             })));
         }
+
+        public static string SelectFieldType(IField field)
+        {
+            var type = field.Type.Unwrap();
+            return type switch
+            {
+                ScalarType scalar => SelectTypeName(scalar),
+                ObjectType objectType => SelectTypeName(objectType),
+                EnumType enumType => SelectTypeName(enumType),
+                _ => "object"
+            };
+        }
+
+        private static string SelectTypeName(EnumType objectType)
+        {
+            return objectType.Name.ToModelName();
+        }
+
+        private static string SelectTypeName(ObjectType objectType)
+        {
+            return objectType.Name.ToModelName();
+        }
+
+        private static string SelectTypeName(ScalarType scalar)
+        {
+            if (StandardScalarToClrType.TryGetValue(scalar.Name, out var value))
+            {
+                return value;
+            }
+
+            return "object";
+        }
+
+        private static readonly Dictionary<string, string> StandardScalarToClrType = new Dictionary<string, string>()
+        {
+            [ScalarType.Float.Name] = "float",
+            [ScalarType.Boolean.Name] = "bool",
+            [ScalarType.ID.Name] = "string",
+            [ScalarType.Int.Name] = "int",
+            [ScalarType.String.Name] ="string"
+        };
     }
 }

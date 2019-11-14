@@ -172,14 +172,14 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         private MethodDeclarationSyntax WithAbstractFieldMethod(string methodName, ObjectType objectType,
             KeyValuePair<string, IField> field)
         {
+            var resultTypeName = PartialObjectTypeModelGenerator.SelectFieldType(field.Value);
             return MethodDeclaration(
                     GenericName(
                             Identifier("ValueTask"))
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList<TypeSyntax>(
-                                    PredefinedType(
-                                        Token(SyntaxKind.ObjectKeyword))))),
+                                    IdentifierName(resultTypeName)))),
                     Identifier(methodName))
                 .WithModifiers(
                     TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.AbstractKeyword)))
@@ -201,14 +201,14 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         private MethodDeclarationSyntax WithPropertyFieldMethod(string methodName, ObjectType objectType,
             KeyValuePair<string, IField> field)
         {
+            var resultTypeName = PartialObjectTypeModelGenerator.SelectFieldType(field.Value);
             return MethodDeclaration(
                     GenericName(
                             Identifier("ValueTask"))
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList<TypeSyntax>(
-                                    PredefinedType(
-                                        Token(SyntaxKind.ObjectKeyword))))),
+                                    IdentifierName(resultTypeName)))),
                     Identifier(methodName))
                 .WithModifiers(
                     TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.AbstractKeyword)))
