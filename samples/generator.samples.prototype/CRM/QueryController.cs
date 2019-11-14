@@ -43,4 +43,7 @@ namespace Tanka.GraphQL.Generator.Samples.Prototype.CRM
     {
 
     }
+
+
+    
 }

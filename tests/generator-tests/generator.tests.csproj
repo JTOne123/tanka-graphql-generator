@@ -26,8 +26,8 @@
   </ItemGroup>
 
 	<ItemGroup>
-		<Compile Remove="Data\**\*" />
-		<Content Include="Data\**\*">
+		<Compile Remove="projects1\Data\**\*" />
+		<Content Include="projects1\Data\**\*">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
 	</ItemGroup>

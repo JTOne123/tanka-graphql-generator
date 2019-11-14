@@ -14,17 +14,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generator.tool", "src\generator.tool\generator.tool.csproj", "{82EDF0FC-EF90-4220-AF9D-AEF0793BA13F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generator.samples.prototype", "samples\generator.samples.prototype\generator.samples.prototype.csproj", "{B6536971-293C-44BB-B987-8A2E81428A2D}"
-	ProjectSection(ProjectDependencies) = postProject
-		{F420D4D0-8E0A-4605-AD2E-0E5BAFB99D4E} = {F420D4D0-8E0A-4605-AD2E-0E5BAFB99D4E}
-		{82EDF0FC-EF90-4220-AF9D-AEF0793BA13F} = {82EDF0FC-EF90-4220-AF9D-AEF0793BA13F}
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0F5C3356-DC59-43FE-B6C1-294161B2ACA2}"
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "generator.core", "src\generator.core\generator.core.csproj", "{3FD60A70-8595-416D-8865-E73CF7A51F91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generator.core", "src\generator.core\generator.core.csproj", "{3FD60A70-8595-416D-8865-E73CF7A51F91}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
