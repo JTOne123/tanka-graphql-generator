@@ -12,15 +12,18 @@ namespace Tanka.GraphQL.Generator.Core.Generators
     public class SchemaResolversGenerator
     {
         private readonly SchemaBuilder _schema;
+        private readonly string _name;
 
-        public SchemaResolversGenerator(SchemaBuilder schema)
+        public SchemaResolversGenerator(SchemaBuilder schema, string name)
         {
             _schema = schema;
+            _name = name;
         }
 
         public MemberDeclarationSyntax Generate()
         {
-            return ClassDeclaration("SchemaResolvers")
+            var resolversName = $"{_name}Resolvers";
+            return ClassDeclaration(resolversName)
                 .WithModifiers(
                     TokenList(
                         Token(SyntaxKind.PublicKeyword)))
@@ -32,7 +35,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 .WithMembers(
                     SingletonList<MemberDeclarationSyntax>(
                         ConstructorDeclaration(
-                                Identifier("SchemaResolvers"))
+                                Identifier(resolversName))
                             .WithModifiers(
                                 TokenList(
                                     Token(SyntaxKind.PublicKeyword)))

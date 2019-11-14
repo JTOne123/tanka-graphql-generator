@@ -16,11 +16,13 @@ namespace Tanka.GraphQL.Generator.Core
     {
         private readonly string _inputFile;
         private readonly string _targetNamespace;
+        private string _schemaName;
 
         public CodeGenerator(string inputFile, string targetNamespace)
         {
             _inputFile = inputFile;
             _targetNamespace = targetNamespace;
+            _schemaName = Path.GetFileNameWithoutExtension(inputFile);
         }
 
         public async Task<CompilationUnitSyntax> Generate()
@@ -58,7 +60,7 @@ namespace Tanka.GraphQL.Generator.Core
 
         private IEnumerable<MemberDeclarationSyntax> GenerateSchema(SchemaBuilder schema)
         {
-            yield return new SchemaResolversGenerator(schema).Generate();
+            yield return new SchemaResolversGenerator(schema, _schemaName).Generate();
         }
 
         private IEnumerable<MemberDeclarationSyntax> GenerateType(ObjectType objectType, SchemaBuilder schema)

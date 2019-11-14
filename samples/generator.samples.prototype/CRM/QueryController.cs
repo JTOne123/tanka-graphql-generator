@@ -28,7 +28,12 @@ namespace Tanka.GraphQL.Generator.Samples.Prototype.CRM
             throw new System.NotImplementedException();
         }
 
-        public override ValueTask<object> Address(Contact parent, ResolverContext context)
+        public override ValueTask<object> HomeAddress(Contact parent, ResolverContext context)
+        {
+            throw new System.NotImplementedException();
+        }
+
+        public override ValueTask<object> OfficeAddress(Contact parent, ResolverContext context)
         {
             throw new System.NotImplementedException();
         }

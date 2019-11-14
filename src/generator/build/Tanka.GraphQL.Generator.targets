@@ -40,6 +40,8 @@
     </SchemaGenerator>
     <ItemGroup>
       <Compile Include="@(SchemaCode)"/>
+      <!-- Extend to be cleaned on clean-->
+      <FileWrites Include="@(SchemaCode)" />
     </ItemGroup>
   </Target>
 

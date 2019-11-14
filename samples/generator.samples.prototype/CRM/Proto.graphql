@@ -1,11 +1,15 @@
 ﻿type Contact {
 	firstName: String!
 	lastName: String!
-	address: Address
+	homeAddress: Address
+	officeAddress: Address
 }
 
 type Address {
-	
+	street: String!
+	zipCode: String!
+	city: String!
+	country: String!
 }
 
 type Query {
