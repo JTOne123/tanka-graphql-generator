@@ -1,22 +1,23 @@
-﻿type Contact {
-	firstName: String!
-	lastName: String!
-	homeAddress: Address
-	officeAddress: Address
-}
-
-type Address {
-	street: String!
-	zipCode: String!
-	city: String!
-	country: String!
-}
+﻿directive @asProperty on FIELD_DEFINITION
+directive @asAbstract on FIELD_DEFINITION
 
 type Query {
-	contact(id: ID!): Contact
-	contacts: [Contact!]!
+	
 }
 
 schema {
 	query: Query
+}
+
+type Address {
+	city: String!
+	street: String!
+}
+
+type Contact {
+	lastName: String!
+	firstName: String!
+	fullName: String! @asAbstract
+	homeAddress: Address @asProperty
+	officeAddress: Address
 }

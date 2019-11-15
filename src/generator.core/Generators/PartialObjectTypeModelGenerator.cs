@@ -42,6 +42,12 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
                 foreach (var field in fields)
                 {
+                    if (AbstractControllerBaseGenerator.IsAbstract(
+                        _schema, 
+                        _objectType, 
+                        field))
+                        continue;
+
                     props.Add(GenerateProperty(field));
                 }
             });

@@ -25,6 +25,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         public MemberDeclarationSyntax Generate()
         {
             var interfaceName = _objectType.Name.ToControllerName().ToInterfaceName();
+            var modelName = _objectType.Name.ToModelName();
             var name = $"{_objectType.Name.ToControllerName()}Base";
 
             return ClassDeclaration(name)
@@ -46,6 +47,14 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                         )
                     )
                 )
+                .WithConstraintClauses(
+                    SingletonList(
+                        TypeParameterConstraintClause(
+                                IdentifierName("T"))
+                            .WithConstraints(
+                                SingletonSeparatedList<TypeParameterConstraintSyntax>(
+                                    TypeConstraint(
+                                        IdentifierName(modelName))))))
                 .WithMembers(List(GenerateFields(_objectType, _schema)));
         }
 
@@ -141,14 +150,29 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 )
                 .WithTrailingTrivia(CarriageReturnLineFeed);
 
-            if (IsAbstract(objectType, field))
+            if (IsAbstract(schema, objectType, field))
                 yield return WithAbstractFieldMethod(methodName, objectType, field);
             else
                 yield return WithPropertyFieldMethod(methodName, objectType, field);
         }
 
-        private bool IsAbstract(ObjectType objectType, KeyValuePair<string, IField> field)
+        public static bool IsAbstract(SchemaBuilder schema, ObjectType objectType, KeyValuePair<string, IField> field)
         {
+            // Check for overrides
+            if (schema.TryGetDirective("asAbstract", out _))
+            {
+                if (field.Value.HasDirective("asAbstract"))
+                {
+                    return true;
+                }
+            }
+
+            if (schema.TryGetDirective("asProperty", out _))
+            {
+                if (field.Value.HasDirective("asProperty"))
+                    return false;
+            }
+
             var args = field.Value.Arguments;
 
             // if field has arguments then automatically require implementation for it
@@ -198,7 +222,9 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                     Token(SyntaxKind.SemicolonToken));
         }
 
-        private MethodDeclarationSyntax WithPropertyFieldMethod(string methodName, ObjectType objectType,
+        private MethodDeclarationSyntax WithPropertyFieldMethod(
+            string methodName, 
+            ObjectType objectType,
             KeyValuePair<string, IField> field)
         {
             var resultTypeName = PartialObjectTypeModelGenerator.SelectFieldType(field.Value);
@@ -211,20 +237,46 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                     IdentifierName(resultTypeName)))),
                     Identifier(methodName))
                 .WithModifiers(
-                    TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.AbstractKeyword)))
+                    TokenList(
+                        new[]
+                        {
+                            Token(SyntaxKind.PublicKeyword),
+                            Token(SyntaxKind.VirtualKeyword)
+                        }))
                 .WithParameterList(
                     ParameterList(
                         SeparatedList<ParameterSyntax>(
                             new SyntaxNodeOrToken[]
                             {
-                                Parameter(Identifier("objectValue"))
-                                    .WithType(IdentifierName("T")),
+                                Parameter(
+                                        Identifier("objectValue"))
+                                    .WithType(
+                                        IdentifierName("T")),
                                 Token(SyntaxKind.CommaToken),
-                                Parameter(Identifier("context"))
-                                    .WithType(IdentifierName("ResolverContext"))
+                                Parameter(
+                                        Identifier("context"))
+                                    .WithType(
+                                        IdentifierName("ResolverContext"))
                             })))
-                .WithSemicolonToken(
-                    Token(SyntaxKind.SemicolonToken));
+                .WithBody(
+                    Block(
+                        SingletonList<StatementSyntax>(
+                            ReturnStatement(
+                                ObjectCreationExpression(
+                                        GenericName(
+                                                Identifier("ValueTask"))
+                                            .WithTypeArgumentList(
+                                                TypeArgumentList(
+                                                    SingletonSeparatedList<TypeSyntax>(
+                                                        IdentifierName(resultTypeName)))))
+                                    .WithArgumentList(
+                                        ArgumentList(
+                                            SingletonSeparatedList<ArgumentSyntax>(
+                                                Argument(
+                                                    MemberAccessExpression(
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        IdentifierName("objectValue"),
+                                                        IdentifierName(methodName))))))))));
         }
     }
 }
