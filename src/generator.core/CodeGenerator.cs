@@ -44,7 +44,8 @@ namespace Tanka.GraphQL.Generator.Core
         {
             return new[]
                 {
-                    UsingDirective(ParseName("System.Threading.Tasks")),
+                    UsingDirective(ParseName(typeof(IEnumerable<>).Namespace)),
+                    UsingDirective(ParseName(typeof(ValueTask<>).Namespace)),
                     UsingDirective(ParseName("Tanka.GraphQL")),
                     UsingDirective(ParseName("Tanka.GraphQL.ValueResolution")),
                     UsingDirective(ParseName("Tanka.GraphQL.Server"))

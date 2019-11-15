@@ -77,12 +77,29 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
         public static string SelectFieldType(IField field)
         {
-            var type = field.Type.Unwrap();
+            var type = field.Type;
+            return SelectTypeName(type);
+        }
+
+        public static string SelectTypeName(IType type)
+        {
+            if (type is NonNull nonNull)
+            {
+                return SelectTypeName(nonNull.OfType);
+            }
+
+            if (type is List list)
+            {
+                var ofType = SelectTypeName(list.OfType);
+                return $"IEnumerable<{ofType}>";
+            }
+
             return type switch
             {
                 ScalarType scalar => SelectTypeName(scalar),
                 ObjectType objectType => SelectTypeName(objectType),
                 EnumType enumType => SelectTypeName(enumType),
+                //todo: union special wrapping
                 _ => "object"
             };
         }

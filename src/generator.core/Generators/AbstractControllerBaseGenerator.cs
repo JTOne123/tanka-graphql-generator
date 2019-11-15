@@ -95,7 +95,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                 .WithVariables(
                                     SingletonSeparatedList(
                                         VariableDeclarator(
-                                                Identifier("parent"))
+                                                Identifier("objectValue"))
                                             .WithInitializer(
                                                 EqualsValueClause(
                                                     CastExpression(
@@ -122,7 +122,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                                                         new SyntaxNodeOrToken[]
                                                                         {
                                                                             Argument(
-                                                                                IdentifierName("parent")),
+                                                                                IdentifierName("objectValue")),
                                                                             Token(SyntaxKind.CommaToken),
                                                                             Argument(
                                                                                 IdentifierName("context"))
@@ -188,7 +188,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                         SeparatedList<ParameterSyntax>(
                             new SyntaxNodeOrToken[]
                             {
-                                Parameter(Identifier("parent"))
+                                Parameter(Identifier("objectValue"))
                                     .WithType(IdentifierName("T")),
                                 Token(SyntaxKind.CommaToken),
                                 Parameter(Identifier("context"))
@@ -217,7 +217,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                         SeparatedList<ParameterSyntax>(
                             new SyntaxNodeOrToken[]
                             {
-                                Parameter(Identifier("parent"))
+                                Parameter(Identifier("objectValue"))
                                     .WithType(IdentifierName("T")),
                                 Token(SyntaxKind.CommaToken),
                                 Parameter(Identifier("context"))

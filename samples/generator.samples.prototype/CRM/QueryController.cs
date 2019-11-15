@@ -1,16 +1,17 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Tanka.GraphQL.ValueResolution;
 
 namespace Tanka.GraphQL.Generator.Samples.Prototype.CRM
 {
-    public class QueryController : IQueryController
+    public class QueryController : QueryControllerBase<Query>
     {
-        public ValueTask<IResolveResult> Contact(ResolverContext context)
+        public override ValueTask<Contact> Contact(Query objectValue, ResolverContext context)
         {
             throw new System.NotImplementedException();
         }
 
-        public ValueTask<IResolveResult> Contacts(ResolverContext context)
+        public override ValueTask<IEnumerable<Contact>> Contacts(Query objectValue, ResolverContext context)
         {
             throw new System.NotImplementedException();
         }
