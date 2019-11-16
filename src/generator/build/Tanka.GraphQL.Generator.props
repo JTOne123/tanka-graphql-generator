@@ -4,7 +4,7 @@
   <PropertyGroup>
 		<TankaSchemaTaskAssembly Condition="'$(TankaSchemaTaskAssembly)' == ''">..\Tanka.GraphQL.Generator.dll</TankaSchemaTaskAssembly>
     <TankaGeneratorToolCommand Condition="'$(TankaGeneratorToolCommand)' == ''">dotnet</TankaGeneratorToolCommand>
-    <TankaGeneratorToolCommandArgs Condition="'$(TankaGeneratorToolCommandArgs)' == ''">tanka-graphql</TankaGeneratorToolCommandArgs>
+    <TankaGeneratorToolCommandArgs Condition="'$(TankaGeneratorToolCommandArgs)' == ''">tanka-graphql gen-model</TankaGeneratorToolCommandArgs>
     <TankaGeneratorForce Condition="'$(TankaGeneratorForce)' == ''">false</TankaGeneratorForce>
   </PropertyGroup>
   <ItemDefinitionGroup>

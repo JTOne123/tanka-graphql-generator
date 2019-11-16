@@ -6,8 +6,11 @@
     <PackageProjectUrl>https://github.com/pekkah/tanka-graphql-generator</PackageProjectUrl>
     <RepositoryUrl>https://github.com/pekkah/tanka-graphql-generator</RepositoryUrl>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
-    <LangVersion>8.0</LangVersion>
     <Description>Code generator for Tanka GraphQL library</Description>
     <PackageTags>graphql,tanka,resolvers,generator,msbuild</PackageTags>
+  </PropertyGroup>
+  <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 </Project>

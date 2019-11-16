@@ -36,16 +36,6 @@ namespace Tanka.GraphQL.Generator.Tests
         public void BuildTest()
         {
             var path = "./projects1/project1.csproj";
-            const string targetFramework = "netcoreapp3.0";
-
-            /*ProjectCreator.Templates.SdkCsproj(
-                    targetFramework: targetFramework,
-                    projectCollection: projectCollection)
-                .Save(path)
-                .TryBuild("Restore", out bool restoreResult, out BuildOutput restoreBuildOutput);
-
-            Assert.True(restoreResult);*/
-
             var project = ProjectCreator
                 .Create(path, defaultTargets:"GenerateTankaSchema")
                 .PropertyGroup()
@@ -53,8 +43,8 @@ namespace Tanka.GraphQL.Generator.Tests
                 .Property("TankaSchemaTaskAssembly", "../bin/Debug/netstandard2.0/tanka.graphql.generator.dll")
                 .Property("RootNamespace", "Tanka.GraphQL.Generator.Tests")
                 .Property("TankaGeneratorToolCommand",
-                    "../../../../../../src/generator.tool/bin/Debug/netcoreapp3.0/tanka.graphql.generator.tool.exe")
-                .Property("TankaGeneratorToolCommandArgs", "")
+                    "../../../../../../src/generator.tool/bin/Debug/netcoreapp3.0/dotnet-tanka-graphql.exe")
+                .Property("TankaGeneratorToolCommandArgs", "gen-model")
                 .Property("TankaGeneratorForce", "true")
                 .Import("../../../../../../src/generator/build/Tanka.GraphQL.Generator.props")
                 .Import("../../../../../../src/generator/build/Tanka.GraphQL.Generator.targets");
@@ -62,6 +52,7 @@ namespace Tanka.GraphQL.Generator.Tests
 
             project.TryBuild(out var success, out var log);
             WriteLog(log);
+            log.Dispose();
             Assert.True(success);
         }
     }

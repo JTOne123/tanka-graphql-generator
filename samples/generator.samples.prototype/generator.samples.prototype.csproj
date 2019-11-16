@@ -7,8 +7,8 @@
   </PropertyGroup>
   <PropertyGroup>
     <TankaSchemaTaskAssembly>../../../src/generator/bin/Debug/netstandard2.0/tanka.graphql.generator.dll</TankaSchemaTaskAssembly>
-    <TankaGeneratorToolCommand>$(MSBuildThisFileDirectory)../../src/generator.tool/bin/Debug/netcoreapp3.0/tanka.graphql.generator.tool.exe</TankaGeneratorToolCommand>
-    <TankaGeneratorToolCommandArgs></TankaGeneratorToolCommandArgs>
+    <TankaGeneratorToolCommand>$(MSBuildThisFileDirectory)../../src/generator.tool/bin/Debug/netcoreapp3.0/dotnet-tanka-graphql.exe</TankaGeneratorToolCommand>
+    <TankaGeneratorToolCommandArgs>gen-model</TankaGeneratorToolCommandArgs>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)../../src/generator/build/Tanka.GraphQL.Generator.props" />
   <Import Project="$(MSBuildThisFileDirectory)../../src/generator/build/Tanka.GraphQL.Generator.targets" />

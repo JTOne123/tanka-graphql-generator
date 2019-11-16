@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
@@ -10,17 +11,17 @@ namespace Tanka.GraphQL.Generator
 {
     public class SchemaGenerator : Task
     {
-        [Required] public string Command { get; set; }
+        [Required] public string Command { get; set; } = string.Empty;
 
-        public string CommandArgs { get; set; }
+        public string? CommandArgs { get; set; }
 
-        [Required] public string RootNamespace { get; set; }
+        [Required] public string RootNamespace { get; set; } = string.Empty;
 
         public bool Force { get; set; }
 
-        [Required] public ITaskItem[] InputFiles { get; set; }
+        [Required] public ITaskItem[] InputFiles { get; set; } = new ITaskItem[0];
 
-        [Output] public ITaskItem[] OutputFiles { get; set; }
+        [Output] public ITaskItem[] OutputFiles { get; set; } = new ITaskItem[0];
 
         public override bool Execute()
         {
@@ -43,7 +44,7 @@ namespace Tanka.GraphQL.Generator
             return true;
         }
 
-        private ITaskItem RunGenerator(ITaskItem inputFile)
+        private ITaskItem? RunGenerator(ITaskItem inputFile)
         {
             var inputFilePath = Path.GetFullPath(inputFile.ItemSpec);
             var outputItemSpec = inputFile.GetMetadata("Code");
@@ -69,7 +70,7 @@ namespace Tanka.GraphQL.Generator
                 if (lastModified < lastGenerated)
                 {
                     Log.LogMessage(
-                        MessageImportance.High, 
+                        MessageImportance.High,
                         $"Input file '{inputFilePath}' hasn't changed since last time generated");
 
                     // return existing file
@@ -123,6 +124,10 @@ namespace Tanka.GraphQL.Generator
         private string ToNamespace(string itemSpec)
         {
             var dir = Path.GetDirectoryName(itemSpec);
+
+            if (dir == null)
+                throw new InvalidOperationException($"Could not get directory name from '{itemSpec}'.");
+
             return Regex.Replace(dir, "\\s+", "")
                 .Replace(Path.DirectorySeparatorChar, '.')
                 .Replace(Path.AltDirectorySeparatorChar, '.');
@@ -135,7 +140,7 @@ namespace Tanka.GraphQL.Generator
             // add args if given
             if (!string.IsNullOrEmpty(CommandArgs))
             {
-                builder.Append(CommandArgs.Trim());
+                builder.Append(CommandArgs!.Trim());
                 builder.Append(" ");
             }
 
