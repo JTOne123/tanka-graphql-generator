@@ -8,8 +8,6 @@
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Description>Code generator for Tanka GraphQL library</Description>
     <PackageTags>graphql,tanka,resolvers,generator,msbuild</PackageTags>
-  </PropertyGroup>
-  <PropertyGroup>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
