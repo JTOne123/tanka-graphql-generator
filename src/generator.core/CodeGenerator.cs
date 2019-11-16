@@ -32,10 +32,14 @@ namespace Tanka.GraphQL.Generator.Core
 
             var unit = CompilationUnit()
                 .WithUsings(List(GenerateUsings()))
+                .WithLeadingTrivia(Comment("#nullable enable"))
                 .WithMembers(SingletonList<MemberDeclarationSyntax>(
                         NamespaceDeclaration(IdentifierName(nsName))
                             .WithMembers(List(GenerateTypes(schema)))))
-                .NormalizeWhitespace();
+                .NormalizeWhitespace()
+                .WithTrailingTrivia(
+                    CarriageReturnLineFeed, 
+                    Comment("#nullable disable"));
 
             return unit;
         }
@@ -44,6 +48,7 @@ namespace Tanka.GraphQL.Generator.Core
         {
             return new[]
                 {
+                    UsingDirective(ParseName("System")),
                     UsingDirective(ParseName(typeof(IEnumerable<>).Namespace)),
                     UsingDirective(ParseName(typeof(ValueTask<>).Namespace)),
                     UsingDirective(ParseName("Tanka.GraphQL")),

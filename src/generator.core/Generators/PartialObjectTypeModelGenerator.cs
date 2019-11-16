@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
-using System.Threading;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Tanka.GraphQL.Introspection;
 using Tanka.GraphQL.SchemaBuilding;
 using Tanka.GraphQL.TypeSystem;
 using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
@@ -28,6 +28,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                     TokenList(
                         Token(SyntaxKind.PublicKeyword),
                         Token(SyntaxKind.PartialKeyword)))
+                .WithLeadingTrivia(CodeModel.ToXmlComment(_objectType.Description))
                 .WithMembers(
                     List(GenerateProperties()));
         }
@@ -58,13 +59,14 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         private MemberDeclarationSyntax GenerateProperty(KeyValuePair<string, IField> field)
         {
             var propertyName = field.Key.Capitalize();
-            var typeName = SelectFieldType(field.Value);
+            var typeName = SelectFieldType(field);
             return PropertyDeclaration(
                     IdentifierName(typeName),
                     Identifier(propertyName))
                 .WithModifiers(
                     TokenList(
                         Token(SyntaxKind.PublicKeyword)))
+                .WithLeadingTrivia(CodeModel.ToXmlComment(field.Value.Description))
                 .WithAccessorList(
                     AccessorList(
                         List(
@@ -81,62 +83,9 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                             })));
         }
 
-        public static string SelectFieldType(IField field)
+        public string SelectFieldType(KeyValuePair<string, IField> field)
         {
-            var type = field.Type;
-            return SelectTypeName(type);
+            return CodeModel.SelectFieldTypeName(_schema, _objectType, field);
         }
-
-        public static string SelectTypeName(IType type)
-        {
-            if (type is NonNull nonNull)
-            {
-                return SelectTypeName(nonNull.OfType);
-            }
-
-            if (type is List list)
-            {
-                var ofType = SelectTypeName(list.OfType);
-                return $"IEnumerable<{ofType}>";
-            }
-
-            return type switch
-            {
-                ScalarType scalar => SelectTypeName(scalar),
-                ObjectType objectType => SelectTypeName(objectType),
-                EnumType enumType => SelectTypeName(enumType),
-                //todo: union special wrapping
-                _ => "object"
-            };
-        }
-
-        private static string SelectTypeName(EnumType objectType)
-        {
-            return objectType.Name.ToModelName();
-        }
-
-        private static string SelectTypeName(ObjectType objectType)
-        {
-            return objectType.Name.ToModelName();
-        }
-
-        private static string SelectTypeName(ScalarType scalar)
-        {
-            if (StandardScalarToClrType.TryGetValue(scalar.Name, out var value))
-            {
-                return value;
-            }
-
-            return "object";
-        }
-
-        private static readonly Dictionary<string, string> StandardScalarToClrType = new Dictionary<string, string>()
-        {
-            [ScalarType.Float.Name] = "float",
-            [ScalarType.Boolean.Name] = "bool",
-            [ScalarType.ID.Name] = "string",
-            [ScalarType.Int.Name] = "int",
-            [ScalarType.String.Name] ="string"
-        };
     }
 }

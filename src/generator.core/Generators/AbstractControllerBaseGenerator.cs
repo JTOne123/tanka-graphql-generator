@@ -158,45 +158,13 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
         public static bool IsAbstract(SchemaBuilder schema, ObjectType objectType, KeyValuePair<string, IField> field)
         {
-            // Check for overrides
-            if (schema.TryGetDirective("asAbstract", out _))
-            {
-                if (field.Value.HasDirective("asAbstract"))
-                {
-                    return true;
-                }
-            }
-
-            if (schema.TryGetDirective("asProperty", out _))
-            {
-                if (field.Value.HasDirective("asProperty"))
-                    return false;
-            }
-
-            var args = field.Value.Arguments;
-
-            // if field has arguments then automatically require implementation for it
-            if (args.Any())
-                return true;
-
-            var type = field.Value.Type;
-
-            // if complex type (Object, Interface) then requires implementation
-            if (type is ComplexType)
-                return true;
-
-            // unions require implementation as they require the actual graph type to be
-            // given
-            if (type is UnionType)
-                return true;
-
-            return false;
+            return CodeModel.IsAbstract(schema, objectType, field);
         }
 
         private MethodDeclarationSyntax WithAbstractFieldMethod(string methodName, ObjectType objectType,
             KeyValuePair<string, IField> field)
         {
-            var resultTypeName = PartialObjectTypeModelGenerator.SelectFieldType(field.Value);
+            var resultTypeName = CodeModel.SelectFieldTypeName(_schema, _objectType, field);
             return MethodDeclaration(
                     GenericName(
                             Identifier("ValueTask"))
@@ -227,7 +195,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             ObjectType objectType,
             KeyValuePair<string, IField> field)
         {
-            var resultTypeName = PartialObjectTypeModelGenerator.SelectFieldType(field.Value);
+            var resultTypeName = CodeModel.SelectFieldTypeName(_schema, _objectType, field);
             return MethodDeclaration(
                     GenericName(
                             Identifier("ValueTask"))
