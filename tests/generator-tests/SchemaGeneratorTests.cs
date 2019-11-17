@@ -43,7 +43,7 @@ namespace Tanka.GraphQL.Generator.Tests
                 .Property("TankaSchemaTaskAssembly", "../bin/Debug/netstandard2.0/tanka.graphql.generator.dll")
                 .Property("RootNamespace", "Tanka.GraphQL.Generator.Tests")
                 .Property("TankaGeneratorToolCommand",
-                    "../../../../../../src/generator.tool/bin/Debug/netcoreapp3.0/tanka-graphql-generator-tool.exe")
+                    "../../../../../../src/generator.tool/bin/Debug/netcoreapp3.0/tanka.graphql.generator.tool.exe")
                 .Property("TankaGeneratorToolCommandArgs", "gen-model")
                 .Property("TankaGeneratorForce", "true")
                 .Import("../../../../../../src/generator/build/Tanka.GraphQL.Generator.props")

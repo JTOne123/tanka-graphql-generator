@@ -1,0 +1,46 @@
+name: tanka-graphql-generator
+
+on:
+  pull_request:
+    branches: 
+      - master
+  push:
+    branches: 
+      - master
+
+jobs:
+  build:
+    env:
+      DOTNET_CLI_TELEMETRY_OPTOUT: 1
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.0.100
+    - name: Install GitVersion
+      run: dotnet tool install GitVersion.Tool --tool-path .local-tools
+    - name: Build generator
+      run: dotnet build src/generator/generator.csproj --configuration Debug
+    - name: Build generator.tool
+      run: dotnet build src/generator.tool/generator.tool.csproj --configuration Debug
+    - name: Pack
+      run: | 
+        VERSION=$(.local-tools/dotnet-gitversion /output json /showvariable SemVer)
+        dotnet pack src/generator.tool/generator.tool.csproj --configuration Debug -p:PackageVersion=$VERSION -o .nugets
+        dotnet pack src/generator/generator.csproj --configuration Debug -p:PackageVersion=$VERSION -o .nugets
+      shell: bash
+    - name: Download latest NuGet (cross-platform)
+      uses: olegtarasov/download-nuget@v1
+    - name: Nugets as artifacts
+      uses: actions/upload-artifact@v1
+      with:
+        name: NuGets
+        path: .nugets
+    - name: Push to GH Packages
+      if: endsWith(github.ref, 'master')
+      run: |
+        mono $NUGET_EXE source Add -Name "GitHub" -Source "https://nuget.pkg.github.com/pekkah/index.json" -UserName pekkah -Password ${{ secrets.GITHUB_TOKEN }}
+        mono $NUGET_EXE push .nugets/*.nupkg -Source "GitHub" -SkipDuplicate
+       
