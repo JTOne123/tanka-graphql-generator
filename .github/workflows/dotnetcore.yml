@@ -28,8 +28,8 @@ jobs:
     - name: Pack
       run: | 
         VERSION=$(.local-tools/dotnet-gitversion /output json /showvariable SemVer)
-        dotnet pack src/generator.tool/generator.tool.csproj --configuration Debug -p:PackageVersion=$VERSION -o .nugets
-        dotnet pack src/generator/generator.csproj --configuration Debug -p:PackageVersion=$VERSION -o .nugets
+        dotnet pack src/generator.tool/generator.tool.csproj --configuration Debug -p:PackageVersion=$VERSION -o .nugets --include-symbols
+        dotnet pack src/generator/generator.csproj --configuration Debug -p:PackageVersion=$VERSION -o .nugets --include-symbols
       shell: bash
     - name: Nugets as artifacts
       uses: actions/upload-artifact@v1
