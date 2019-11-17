@@ -31,8 +31,6 @@ jobs:
         dotnet pack src/generator.tool/generator.tool.csproj --configuration Debug -p:PackageVersion=$VERSION -o .nugets
         dotnet pack src/generator/generator.csproj --configuration Debug -p:PackageVersion=$VERSION -o .nugets
       shell: bash
-    - name: Download latest NuGet (cross-platform)
-      uses: olegtarasov/download-nuget@v1
     - name: Nugets as artifacts
       uses: actions/upload-artifact@v1
       with:
@@ -40,6 +38,8 @@ jobs:
         path: .nugets
     - name: Push NuGets
       if: endsWith(github.ref, 'master')
+      env: # Or as an environment variable
+        ApiKey: ${{ secrets.NuGet_TankaGraphQLGenerators }}
       run: |
-        dotnet nuget push .nugets/*.nupkg -k $NuGet_TankaGraphQLGenerators
+        dotnet nuget push .nugets/*.nupkg -k $ApiKey
        
