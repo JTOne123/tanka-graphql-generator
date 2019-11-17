@@ -4,7 +4,7 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <RootNamespace>Tanka.GraphQL.Generator.Tool</RootNamespace>
-    <AssemblyName>dotnet-tanka-graphql</AssemblyName>
+    <AssemblyName>tanka-graphql-generator-tool</AssemblyName>
     <PackAsTool>true</PackAsTool>
     <ToolCommandName>dotnet-tanka-graphql</ToolCommandName>
   </PropertyGroup>
