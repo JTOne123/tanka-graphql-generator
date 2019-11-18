@@ -41,5 +41,5 @@ jobs:
       env: # Or as an environment variable
         ApiKey: ${{ secrets.NuGet_TankaGraphQLGenerators }}
       run: |
-        nuget push .nugets/**/*.nupkg -k $ApiKey -s https://api.nuget.org/v3/index.json
+        dotnet nuget push .nugets/**/*.nupkg -k $ApiKey -s https://api.nuget.org/v3/index.json
        
