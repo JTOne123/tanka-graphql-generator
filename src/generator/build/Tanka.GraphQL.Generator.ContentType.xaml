@@ -3,8 +3,8 @@
     xmlns="http://schemas.microsoft.com/build/2009/properties">
 
     <ContentType
-        Name="Tanka Schema" 
-        DisplayName="GraphQL Schema File" 
+        Name="TankaSchema" 
+        DisplayName="Tanka GraphQL Schema File" 
         ItemType="TankaSchema" />
 
     <ItemType 

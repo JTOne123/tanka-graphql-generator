@@ -93,32 +93,41 @@ namespace Tanka.GraphQL.Generator
 
         private bool RunGeneratorCommand(string command, string args)
         {
-            using var process = Process.Start(new ProcessStartInfo(command)
+            try
             {
-                Arguments = args,
-                UseShellExecute = false,
-                RedirectStandardError = true,
-                RedirectStandardOutput = true
-            });
+                using var process = Process.Start(new ProcessStartInfo(command)
+                {
+                    Arguments = args,
+                    UseShellExecute = false,
+                    RedirectStandardError = true,
+                    RedirectStandardOutput = true
+                });
 
-            if (process == null)
+                if (process == null)
+                    return false;
+
+                process.WaitForExit();
+
+                var output = process.StandardOutput.ReadToEnd();
+                var error = process.StandardError.ReadToEnd();
+
+                if (!string.IsNullOrEmpty(output))
+                    Log.LogMessage(output);
+
+                if (!string.IsNullOrEmpty(error))
+                    Log.LogError(error);
+
+                if (process.ExitCode > 0)
+                    return false;
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                Log.LogError($"Failed to execute '{command} {args}'");
+                Log.LogErrorFromException(e);
                 return false;
-
-            process.WaitForExit();
-
-            var output = process.StandardOutput.ReadToEnd();
-            var error = process.StandardError.ReadToEnd();
-
-            if (!string.IsNullOrEmpty(output))
-                Log.LogMessage(output);
-
-            if (!string.IsNullOrEmpty(error))
-                Log.LogError(error);
-
-            if (process.ExitCode > 0)
-                return false;
-
-            return true;
+            }
         }
 
         private string ToNamespace(string itemSpec)
