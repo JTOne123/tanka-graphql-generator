@@ -49,7 +49,7 @@ stages:
           dotnet pack --configuration $(buildConfiguration) -p:PackageVersion=$VERSION -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o $(Build.ArtifactStagingDirectory)/nuget
         failOnStderr: true
     - publish: $(Build.ArtifactStagingDirectory)/nuget
-      name: nugets
+      artifact: nugets
 
 - stage: Release
   displayName: Push packages to NuGet.org
@@ -58,6 +58,7 @@ stages:
     steps:
     - download: current
       artifact: nugets
+
     - task: DotNetCoreCLI@2
       inputs:
         command: 'push'
