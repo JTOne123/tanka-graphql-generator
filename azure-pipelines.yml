@@ -58,8 +58,12 @@ stages:
     steps:
     - download: current
       artifact: nugets
+      
+    - task: NuGetToolInstaller@1
+      inputs:
+        versionSpec: 
 
-    - task: DotNetCoreCLI@2
+    - task: NuGetCommand@2
       inputs:
         command: 'push'
         packagesToPush: '$(Pipeline.Workspace)/nugets/*.nupkg'
