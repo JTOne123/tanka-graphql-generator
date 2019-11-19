@@ -1,17 +1,18 @@
-# ASP.NET Core
-# Build and test ASP.NET Core projects targeting .NET Core.
-# Add steps that run tests, create a NuGet package, deploy, and more:
-# https://docs.microsoft.com/azure/devops/pipelines/languages/dotnet-core
-
 trigger:
-- master
-
+  branches:
+    include:
+    - master
+  tags:
+    include:
+    - '*'
+pr:
+  - master
+  
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  buildConfiguration: 'Release'
-  version: 0.1.0
+  buildConfiguration: 'Debug'
 
 steps:
 - task: UseDotNet@2
@@ -19,6 +20,7 @@ steps:
   inputs:
     packageType: 'sdk'
     version: '3.0.x'
+
 - task: DotNetCoreCLI@2
   displayName: Build
   inputs:
@@ -26,15 +28,21 @@ steps:
     projects: |
       **/generator.csproj
       **/generator.tool.csproj
-    arguments: '--configuration Release' # Update this to match your need
+    arguments: '--configuration $(buildConfiguration)' # Update this to match your need
 - task: DotNetCoreCLI@2
   inputs:
     command: test
     projects: '**/*Tests/*.csproj'
     arguments: '--configuration $(buildConfiguration)'
 
-- script: dotnet pack /p:PackageVersion=$(version) -o $(Build.ArtifactStagingDirectory)/nuget
-
+- task: Bash@3
+  inputs:
+    targetType: 'inline'
+    script: |
+      dotnet tool install GitVersion.Tool --tool-path .local-tools
+      VERSION=$(.local-tools/dotnet-gitversion /output json /showvariable SemVer)
+      dotnet pack --configuration $(buildConfiguration) -p:PackageVersion=$VERSION -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o $(Build.ArtifactStagingDirectory)/nuget
+    failOnStderr: true
 - task: PublishBuildArtifacts@1
   inputs:
     pathtoPublish: '$(Build.ArtifactStagingDirectory)/nuget' 
