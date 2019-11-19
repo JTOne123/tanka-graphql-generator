@@ -46,6 +46,7 @@ stages:
         script: |
           dotnet tool install GitVersion.Tool --tool-path .local-tools
           VERSION=$(.local-tools/dotnet-gitversion /output json /showvariable SemVer)
+          echo -e "##vso[build.updatebuildnumber]$VERSION"
           dotnet pack --configuration $(buildConfiguration) -p:PackageVersion=$VERSION -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o $(Build.ArtifactStagingDirectory)/nuget
         failOnStderr: true
     - publish: $(Build.ArtifactStagingDirectory)/nuget
