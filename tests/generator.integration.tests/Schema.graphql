@@ -1,0 +1,4 @@
+﻿type Query {
+	nonNullInt: Int!
+	int: Int
+}

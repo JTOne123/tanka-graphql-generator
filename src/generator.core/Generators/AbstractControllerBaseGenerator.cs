@@ -95,7 +95,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                             Parameter(
                                     Identifier("context"))
                                 .WithType(
-                                    IdentifierName(nameof(ResolverContext))))))
+                                    IdentifierName(nameof(IResolverContext))))))
                 .WithBody(
                     Block(
                         LocalDeclarationStatement(
@@ -184,7 +184,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                     .WithType(IdentifierName("T")),
                                 Token(SyntaxKind.CommaToken),
                                 Parameter(Identifier("context"))
-                                    .WithType(IdentifierName("ResolverContext"))
+                                    .WithType(IdentifierName(nameof(IResolverContext)))
                             })))
                 .WithSemicolonToken(
                     Token(SyntaxKind.SemicolonToken));
@@ -224,7 +224,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                 Parameter(
                                         Identifier("context"))
                                     .WithType(
-                                        IdentifierName("ResolverContext"))
+                                        IdentifierName(nameof(IResolverContext)))
                             })))
                 .WithBody(
                     Block(

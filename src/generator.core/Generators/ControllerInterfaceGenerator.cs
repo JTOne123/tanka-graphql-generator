@@ -60,7 +60,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                             Parameter(
                                     Identifier("context"))
                                 .WithType(
-                                    IdentifierName(nameof(ResolverContext))))))
+                                    IdentifierName(nameof(IResolverContext))))))
                 .WithSemicolonToken(
                     Token(SyntaxKind.SemicolonToken));
         }
