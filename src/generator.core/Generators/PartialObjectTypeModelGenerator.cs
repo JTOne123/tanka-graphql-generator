@@ -58,7 +58,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
         private MemberDeclarationSyntax GenerateProperty(KeyValuePair<string, IField> field)
         {
-            var propertyName = field.Key.Capitalize();
+            var propertyName = field.Key.ToFieldResolverName();
             var typeName = SelectFieldType(field);
             return PropertyDeclaration(
                     IdentifierName(typeName),

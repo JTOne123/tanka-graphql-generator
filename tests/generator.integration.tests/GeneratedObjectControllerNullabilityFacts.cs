@@ -5,18 +5,18 @@ using Xunit;
 
 namespace generator.integration.tests
 {
-    public class ObjectController : TestObjectControllerBase<TestObject>
+    public class NullabilityTestObjectController : NullabilityTestObjectControllerBase<NullabilityTestObject>
     {
     }
 
-    public class GeneratedObjectControllerFacts
+    public class GeneratedObjectControllerNullabilityFacts
     {
-        public GeneratedObjectControllerFacts()
+        public GeneratedObjectControllerNullabilityFacts()
         {
-            _sut = new ObjectController();
+            _sut = new NullabilityTestObjectController();
         }
 
-        private readonly ObjectController _sut;
+        private readonly NullabilityTestObjectController _sut;
 
         private IResolverContext CreateContext(object? objectValue)
         {
@@ -42,7 +42,7 @@ namespace generator.integration.tests
         public async Task NonNull_Property_field()
         {
             /* Given */
-            var context = CreateContext(new TestObject
+            var context = CreateContext(new NullabilityTestObject
             {
                 NonNullInt = 1
             });
@@ -71,7 +71,7 @@ namespace generator.integration.tests
         public async Task Nullable_Property_field_with_null()
         {
             /* Given */
-            var context = CreateContext(new TestObject
+            var context = CreateContext(new NullabilityTestObject
             {
                 Int = null
             });
@@ -87,7 +87,7 @@ namespace generator.integration.tests
         public async Task Nullable_Property_field_with_value()
         {
             /* Given */
-            var context = CreateContext(new TestObject
+            var context = CreateContext(new NullabilityTestObject
             {
                 Int = 1
             });

@@ -46,7 +46,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         private MemberDeclarationSyntax GenerateField(ObjectType objectType, in KeyValuePair<string, IField> field,
             SchemaBuilder schema)
         {
-            var methodName = field.Key.Capitalize();
+            var methodName = field.Key.ToFieldResolverName();
             return MethodDeclaration(
                     GenericName(Identifier(nameof(ValueTask)))
                         .WithTypeArgumentList(

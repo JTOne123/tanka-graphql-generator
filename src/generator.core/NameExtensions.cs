@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace Tanka.GraphQL.Generator.Core
 {
@@ -6,12 +7,16 @@ namespace Tanka.GraphQL.Generator.Core
     {
         public static string ToControllerName(this string name)
         {
+            if (name == null) throw new ArgumentNullException(nameof(name));
+
             return $"{name}Controller";
         }
 
         public static string ToInterfaceName(this string name)
         {
-            var capitalized = name.Capitalize();
+            var capitalized = name
+                .Capitalize();
+
             return $"I{capitalized}";
         }
 
@@ -19,19 +24,50 @@ namespace Tanka.GraphQL.Generator.Core
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentException("Value cannot be null or empty.", nameof(name));
 
-            return name.Capitalize();
+            return name
+                .Capitalize();
         }
 
         public static string ToFieldResolversName(this string name)
         {
+            if (name == null) throw new ArgumentNullException(nameof(name));
             return $"{name}Fields";
         }
 
-        public static string Capitalize(this string name)
+        public static string ToFieldArgumentName(this string name)
+        {
+            return name.Sanitize();
+        }
+
+        public static string ToFieldResolverName(this string name)
+        {
+            return name
+                .Capitalize();
+        }
+
+        private static string Capitalize(this string name)
         {
             if (string.IsNullOrEmpty(name)) throw new ArgumentException("Value cannot be null or empty.", nameof(name));
             
             return $"{name.Substring(0, 1).ToUpperInvariant()}{name.Substring(1)}";
+        }
+
+        public static string Sanitize(this string name)
+        {
+            if (name.IsKeyword())
+            {
+                return $"_{name}";
+            }
+
+            return name;
+        }
+
+        public static bool IsKeyword(this string name)
+        {
+            bool isAnyKeyword = SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None
+                                || SyntaxFacts.GetContextualKeywordKind(name) != SyntaxKind.None;
+
+            return isAnyKeyword;
         }
     }
 }

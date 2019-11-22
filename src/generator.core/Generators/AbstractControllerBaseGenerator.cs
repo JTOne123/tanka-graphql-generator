@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -80,7 +81,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             KeyValuePair<string, IField> field,
             SchemaBuilder schema)
         {
-            var methodName = field.Key.Capitalize();
+            var methodName = field.Key.ToFieldResolverName();
 
             yield return MethodDeclaration(
                     GenericName(Identifier(nameof(ValueTask)))
@@ -101,7 +102,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                     Identifier("context"))
                                 .WithType(
                                     IdentifierName(nameof(IResolverContext))))))
-                .WithBody(Block(WithFieldMethodBody(objectType, field, schema, methodName)))
+                .WithBody(Block(WithFieldMethodBody(objectType, field, methodName)))
                 .WithTrailingTrivia(CarriageReturnLineFeed);
 
             if (IsAbstract(schema, objectType, field))
@@ -110,8 +111,10 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 yield return WithPropertyFieldMethod(methodName, objectType, field);
         }
 
-        private IEnumerable<StatementSyntax> WithFieldMethodBody(ObjectType objectType,
-            KeyValuePair<string, IField> field, SchemaBuilder schema, string methodName)
+        private IEnumerable<StatementSyntax> WithFieldMethodBody(
+            ObjectType objectType,
+            KeyValuePair<string, IField> field, 
+            string methodName)
         {
             yield return LocalDeclarationStatement(
                 VariableDeclaration(
@@ -168,14 +171,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                             .WithArgumentList(
                                                 ArgumentList(
                                                     SeparatedList<ArgumentSyntax>(
-                                                        new SyntaxNodeOrToken[]
-                                                        {
-                                                            Argument(
-                                                                IdentifierName("objectValue")),
-                                                            Token(SyntaxKind.CommaToken),
-                                                            Argument(
-                                                                IdentifierName("context"))
-                                                        }))))))));
+                                                        WithArguments(objectType, field)))))))));
 
             yield return IfStatement(
                 MemberAccessExpression(
@@ -222,13 +218,65 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                     IdentifierName("result"))))));
         }
 
-        private MethodDeclarationSyntax WithAbstractFieldMethod(string methodName, ObjectType objectType,
+        private IEnumerable<SyntaxNodeOrToken> WithArguments(
+            ObjectType objectType, 
+            KeyValuePair<string, IField> fieldDefinition)
+        {
+            yield return Argument(IdentifierName("objectValue"));
+
+            var arguments = fieldDefinition.Value.Arguments;
+
+            foreach (var argumentDefinition in arguments)
+            {
+                yield return Token(SyntaxKind.CommaToken);
+                yield return WithArgument(argumentDefinition);
+            }
+
+            yield return Token(SyntaxKind.CommaToken);
+
+            yield return Argument(IdentifierName("context"));
+        }
+
+        private SyntaxNodeOrToken WithArgument(KeyValuePair<string, Argument> argumentDefinition)
+        {
+            var argumentName = argumentDefinition.Key.ToFieldArgumentName();
+            var argument = argumentDefinition.Value;
+            var typeName = CodeModel.SelectTypeName(argument.Type);
+
+            if (argument.Type is InputObjectType)
+            {
+                throw new InvalidOperationException($"Input types not supported");
+            }
+
+            var getArgumentValue = InvocationExpression(
+                    MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        IdentifierName("context"),
+                        GenericName(
+                                Identifier("GetArgument"))
+                            .WithTypeArgumentList(
+                                TypeArgumentList(
+                                    SingletonSeparatedList<TypeSyntax>(
+                                        IdentifierName(typeName))))))
+                .WithArgumentList(
+                    ArgumentList(
+                        SingletonSeparatedList<ArgumentSyntax>(
+                            Argument( LiteralExpression(
+                                SyntaxKind.StringLiteralExpression,
+                                Literal(argumentName))))));
+
+            return Argument(getArgumentValue);
+        }
+
+        private MethodDeclarationSyntax WithAbstractFieldMethod(
+            string methodName, 
+            ObjectType objectType,
             KeyValuePair<string, IField> field)
         {
             var resultTypeName = CodeModel.SelectFieldTypeName(_schema, _objectType, field);
             return MethodDeclaration(
                     GenericName(
-                            Identifier("ValueTask"))
+                            Identifier(nameof(ValueTask)))
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList<TypeSyntax>(
@@ -239,16 +287,42 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 .WithParameterList(
                     ParameterList(
                         SeparatedList<ParameterSyntax>(
-                            new SyntaxNodeOrToken[]
-                            {
-                                Parameter(Identifier("objectValue"))
-                                    .WithType(IdentifierName("T")),
-                                Token(SyntaxKind.CommaToken),
-                                Parameter(Identifier("context"))
-                                    .WithType(IdentifierName(nameof(IResolverContext)))
-                            })))
+                            WithParameters(objectType, field))))
                 .WithSemicolonToken(
                     Token(SyntaxKind.SemicolonToken));
+        }
+
+        private IEnumerable<SyntaxNodeOrToken> WithParameters(
+            ObjectType objectType, 
+            KeyValuePair<string, IField> field)
+        {
+            yield return Parameter(Identifier("objectValue"))
+                .WithType(IdentifierName("T"));
+
+            var arguments = field.Value.Arguments;
+
+            foreach (var argumentDefinition in arguments)
+            {
+                yield return Token(SyntaxKind.CommaToken);
+                yield return WithParameter(argumentDefinition);
+            }
+
+            yield return Token(SyntaxKind.CommaToken);
+
+            yield return Parameter(Identifier("context"))
+                .WithType(IdentifierName(nameof(IResolverContext)));
+
+        }
+
+        private SyntaxNodeOrToken WithParameter(
+            KeyValuePair<string, Argument> argumentDefinition)
+        {
+            var argumentName = argumentDefinition.Key.ToFieldArgumentName();
+            var argument = argumentDefinition.Value;
+            var typeName = CodeModel.SelectTypeName(argument.Type);
+
+            return Parameter(Identifier(argumentName))
+                .WithType(ParseTypeName(typeName));
         }
 
         private MethodDeclarationSyntax WithPropertyFieldMethod(

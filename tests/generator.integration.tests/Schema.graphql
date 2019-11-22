@@ -1,4 +1,8 @@
-﻿type TestObject {
+﻿type NullabilityTestObject {
 	nonNullInt: Int!
 	int: Int
+}
+
+type ArgumentsTestObject {
+	int(arg: Int): Int
 }

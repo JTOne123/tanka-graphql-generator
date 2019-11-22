@@ -59,7 +59,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         {
             var interfaceName = _objectType.Name.ToControllerName().ToInterfaceName();
             var fieldName = field.Key;
-            var methodName = fieldName.Capitalize();
+            var methodName = fieldName.ToFieldResolverName();
             return ExpressionStatement(
                 InvocationExpression(
                         IdentifierName("Add"))
