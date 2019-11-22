@@ -5,4 +5,7 @@
 
 type ArgumentsTestObject {
 	int(arg: Int): Int
+	string(arg: String): String
+	float(arg: Float): Float
+	boolean(arg: Boolean): Boolean
 }

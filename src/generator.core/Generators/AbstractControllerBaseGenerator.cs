@@ -239,7 +239,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
         private SyntaxNodeOrToken WithArgument(KeyValuePair<string, Argument> argumentDefinition)
         {
-            var argumentName = argumentDefinition.Key.ToFieldArgumentName();
+            var rawArgumentName = argumentDefinition.Key;
             var argument = argumentDefinition.Value;
             var typeName = CodeModel.SelectTypeName(argument.Type);
 
@@ -263,7 +263,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                         SingletonSeparatedList<ArgumentSyntax>(
                             Argument( LiteralExpression(
                                 SyntaxKind.StringLiteralExpression,
-                                Literal(argumentName))))));
+                                Literal(rawArgumentName))))));
 
             return Argument(getArgumentValue);
         }
