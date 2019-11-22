@@ -58,6 +58,11 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 .WithMembers(List(GenerateFields(_objectType, _schema)));
         }
 
+        public static bool IsAbstract(SchemaBuilder schema, ObjectType objectType, KeyValuePair<string, IField> field)
+        {
+            return CodeModel.IsAbstract(schema, objectType, field);
+        }
+
         private IEnumerable<MemberDeclarationSyntax> GenerateFields(ObjectType objectType, SchemaBuilder schema)
         {
             var members = new List<MemberDeclarationSyntax>();
@@ -96,58 +101,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                     Identifier("context"))
                                 .WithType(
                                     IdentifierName(nameof(IResolverContext))))))
-                .WithBody(
-                    Block(
-                        LocalDeclarationStatement(
-                            VariableDeclaration(
-                                    IdentifierName("var"))
-                                .WithVariables(
-                                    SingletonSeparatedList(
-                                        VariableDeclarator(
-                                                Identifier("objectValue"))
-                                            .WithInitializer(
-                                                EqualsValueClause(
-                                                    CastExpression(
-                                                        IdentifierName("T"),
-                                                        MemberAccessExpression(
-                                                            SyntaxKind.SimpleMemberAccessExpression,
-                                                            IdentifierName("context"),
-                                                            IdentifierName("ObjectValue")))))))),
-                        LocalDeclarationStatement(
-                            VariableDeclaration(
-                                    IdentifierName("var"))
-                                .WithVariables(
-                                    SingletonSeparatedList(
-                                        VariableDeclarator(
-                                                Identifier("result"))
-                                            .WithInitializer(
-                                                EqualsValueClause(
-                                                    AwaitExpression(
-                                                        InvocationExpression(
-                                                                IdentifierName(methodName))
-                                                            .WithArgumentList(
-                                                                ArgumentList(
-                                                                    SeparatedList<ArgumentSyntax>(
-                                                                        new SyntaxNodeOrToken[]
-                                                                        {
-                                                                            Argument(
-                                                                                IdentifierName("objectValue")),
-                                                                            Token(SyntaxKind.CommaToken),
-                                                                            Argument(
-                                                                                IdentifierName("context"))
-                                                                        }))))))))),
-                        ReturnStatement(
-                            InvocationExpression(
-                                    MemberAccessExpression(
-                                        SyntaxKind.SimpleMemberAccessExpression,
-                                        IdentifierName("Resolve"),
-                                        IdentifierName("As")))
-                                .WithArgumentList(
-                                    ArgumentList(
-                                        SingletonSeparatedList(
-                                            Argument(
-                                                IdentifierName("result")))))))
-                )
+                .WithBody(Block(WithFieldMethodBody(objectType, field, schema, methodName)))
                 .WithTrailingTrivia(CarriageReturnLineFeed);
 
             if (IsAbstract(schema, objectType, field))
@@ -156,9 +110,116 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 yield return WithPropertyFieldMethod(methodName, objectType, field);
         }
 
-        public static bool IsAbstract(SchemaBuilder schema, ObjectType objectType, KeyValuePair<string, IField> field)
+        private IEnumerable<StatementSyntax> WithFieldMethodBody(ObjectType objectType,
+            KeyValuePair<string, IField> field, SchemaBuilder schema, string methodName)
         {
-            return CodeModel.IsAbstract(schema, objectType, field);
+            yield return LocalDeclarationStatement(
+                VariableDeclaration(
+                        IdentifierName("var"))
+                    .WithVariables(
+                        SingletonSeparatedList(
+                            VariableDeclarator(
+                                    Identifier("objectValue"))
+                                .WithInitializer(
+                                    EqualsValueClause(
+                                        BinaryExpression(
+                                            SyntaxKind.AsExpression,
+                                            MemberAccessExpression(
+                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                IdentifierName("context"),
+                                                IdentifierName("ObjectValue")),
+                                            IdentifierName("T")))))));
+            yield return IfStatement(
+                    BinaryExpression(
+                        SyntaxKind.EqualsExpression,
+                        IdentifierName("objectValue"),
+                        LiteralExpression(
+                            SyntaxKind.NullLiteralExpression)),
+                    ReturnStatement(
+                        InvocationExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("Resolve"),
+                                    IdentifierName("As")))
+                            .WithArgumentList(
+                                ArgumentList(
+                                    SingletonSeparatedList(
+                                        Argument(
+                                            LiteralExpression(
+                                                SyntaxKind.NullLiteralExpression)))))))
+                .WithIfKeyword(
+                    Token(
+                        TriviaList(
+                            Comment("// if parent field was null this should never run")),
+                        SyntaxKind.IfKeyword,
+                        TriviaList()));
+
+            yield return LocalDeclarationStatement(
+                VariableDeclaration(
+                        IdentifierName("var"))
+                    .WithVariables(
+                        SingletonSeparatedList<VariableDeclaratorSyntax>(
+                            VariableDeclarator(
+                                    Identifier("resultTask"))
+                                .WithInitializer(
+                                    EqualsValueClause(
+                                        InvocationExpression(
+                                                IdentifierName(methodName))
+                                            .WithArgumentList(
+                                                ArgumentList(
+                                                    SeparatedList<ArgumentSyntax>(
+                                                        new SyntaxNodeOrToken[]
+                                                        {
+                                                            Argument(
+                                                                IdentifierName("objectValue")),
+                                                            Token(SyntaxKind.CommaToken),
+                                                            Argument(
+                                                                IdentifierName("context"))
+                                                        }))))))));
+
+            yield return IfStatement(
+                MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    IdentifierName("resultTask"),
+                    IdentifierName("IsCompletedSuccessfully")),
+                ReturnStatement(
+                    InvocationExpression(
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("Resolve"),
+                                IdentifierName("As")))
+                        .WithArgumentList(
+                            ArgumentList(
+                                SingletonSeparatedList<ArgumentSyntax>(
+                                    Argument(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("resultTask"),
+                                            IdentifierName("Result"))))))));
+
+            yield return LocalDeclarationStatement(
+                VariableDeclaration(
+                        IdentifierName("var"))
+                    .WithVariables(
+                        SingletonSeparatedList<VariableDeclaratorSyntax>(
+                            VariableDeclarator(
+                                    Identifier("result"))
+                                .WithInitializer(
+                                    EqualsValueClause(
+                                        AwaitExpression(
+                                            IdentifierName("resultTask")))))));
+
+            yield return ReturnStatement(
+                    InvocationExpression(
+                        MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            IdentifierName("Resolve"),
+                            IdentifierName("As")))
+                    .WithArgumentList(
+                        ArgumentList(
+                            SingletonSeparatedList<ArgumentSyntax>(
+                                Argument(
+                                    IdentifierName("result"))))));
         }
 
         private MethodDeclarationSyntax WithAbstractFieldMethod(string methodName, ObjectType objectType,
@@ -191,7 +252,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         }
 
         private MethodDeclarationSyntax WithPropertyFieldMethod(
-            string methodName, 
+            string methodName,
             ObjectType objectType,
             KeyValuePair<string, IField> field)
         {
@@ -205,12 +266,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                     IdentifierName(resultTypeName)))),
                     Identifier(methodName))
                 .WithModifiers(
-                    TokenList(
-                        new[]
-                        {
-                            Token(SyntaxKind.PublicKeyword),
-                            Token(SyntaxKind.VirtualKeyword)
-                        }))
+                    TokenList(Token(SyntaxKind.PublicKeyword), Token(SyntaxKind.VirtualKeyword)))
                 .WithParameterList(
                     ParameterList(
                         SeparatedList<ParameterSyntax>(
@@ -239,7 +295,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                                         IdentifierName(resultTypeName)))))
                                     .WithArgumentList(
                                         ArgumentList(
-                                            SingletonSeparatedList<ArgumentSyntax>(
+                                            SingletonSeparatedList(
                                                 Argument(
                                                     MemberAccessExpression(
                                                         SyntaxKind.SimpleMemberAccessExpression,
