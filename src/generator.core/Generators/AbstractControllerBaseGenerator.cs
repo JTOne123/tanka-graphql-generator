@@ -13,6 +13,13 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 {
     public class AbstractControllerBaseGenerator
     {
+        private static readonly List<string> RootObjectTypeNames = new List<string>
+        {
+            "Query",
+            "Mutation",
+            "Subscription"
+        };
+
         private readonly ObjectType _objectType;
         private readonly SchemaBuilder _schema;
 
@@ -104,7 +111,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 .WithBody(Block(WithFieldMethodBody(objectType, field, methodName)))
                 .WithTrailingTrivia(CarriageReturnLineFeed);
 
-            if (IsAbstract(schema, objectType, field))
+            if (IsAbstract(schema, objectType, field) || RootObjectTypeNames.Contains(_objectType.Name))
                 yield return WithAbstractFieldMethod(methodName, objectType, field);
             else
                 yield return WithPropertyFieldMethod(methodName, objectType, field);
@@ -131,30 +138,33 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                                 IdentifierName("context"),
                                                 IdentifierName("ObjectValue")),
                                             IdentifierName("T")))))));
-            yield return IfStatement(
-                    BinaryExpression(
-                        SyntaxKind.EqualsExpression,
-                        IdentifierName("objectValue"),
-                        LiteralExpression(
-                            SyntaxKind.NullLiteralExpression)),
-                    ReturnStatement(
-                        InvocationExpression(
-                                MemberAccessExpression(
-                                    SyntaxKind.SimpleMemberAccessExpression,
-                                    IdentifierName("Resolve"),
-                                    IdentifierName("As")))
-                            .WithArgumentList(
-                                ArgumentList(
-                                    SingletonSeparatedList(
-                                        Argument(
-                                            LiteralExpression(
-                                                SyntaxKind.NullLiteralExpression)))))))
-                .WithIfKeyword(
-                    Token(
-                        TriviaList(
-                            Comment("// if parent field was null this should never run")),
-                        SyntaxKind.IfKeyword,
-                        TriviaList()));
+
+
+            if (!RootObjectTypeNames.Contains(_objectType.Name))
+                yield return IfStatement(
+                        BinaryExpression(
+                            SyntaxKind.EqualsExpression,
+                            IdentifierName("objectValue"),
+                            LiteralExpression(
+                                SyntaxKind.NullLiteralExpression)),
+                        ReturnStatement(
+                            InvocationExpression(
+                                    MemberAccessExpression(
+                                        SyntaxKind.SimpleMemberAccessExpression,
+                                        IdentifierName("Resolve"),
+                                        IdentifierName("As")))
+                                .WithArgumentList(
+                                    ArgumentList(
+                                        SingletonSeparatedList(
+                                            Argument(
+                                                LiteralExpression(
+                                                    SyntaxKind.NullLiteralExpression)))))))
+                    .WithIfKeyword(
+                        Token(
+                            TriviaList(
+                                Comment("// if parent field was null this should never run")),
+                            SyntaxKind.IfKeyword,
+                            TriviaList()));
 
             yield return LocalDeclarationStatement(
                 VariableDeclaration(
@@ -270,6 +280,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             KeyValuePair<string, IField> field)
         {
             var resultTypeName = CodeModel.SelectFieldTypeName(_schema, _objectType, field);
+
             return MethodDeclaration(
                     GenericName(
                             Identifier(nameof(ValueTask)))
@@ -292,8 +303,12 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             ObjectType objectType,
             KeyValuePair<string, IField> field)
         {
-            yield return Parameter(Identifier("objectValue"))
-                .WithType(IdentifierName("T"));
+            if (RootObjectTypeNames.Contains(_objectType.Name))
+                yield return Parameter(Identifier("objectValue"))
+                    .WithType(IdentifierName("T?"));
+            else
+                yield return Parameter(Identifier("objectValue"))
+                    .WithType(IdentifierName("T"));
 
             var arguments = field.Value.Arguments;
 

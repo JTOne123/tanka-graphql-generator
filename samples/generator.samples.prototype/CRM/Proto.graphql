@@ -5,7 +5,7 @@
 ) on FIELD_DEFINITION
 
 type Query {
-	
+	field: String
 }
 
 schema {
