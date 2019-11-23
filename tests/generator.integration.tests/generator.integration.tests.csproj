@@ -10,8 +10,8 @@
     <RootNamespace>Tanka.GraphQL.Generator.Integration.Tests</RootNamespace>
     <AssemblyName>tanka.graphql.generator.integration.tests</AssemblyName>
   </PropertyGroup>
-  <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/Tanka.GraphQL.Generator.props" />
-  <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/Tanka.GraphQL.Generator.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.props" />
+  <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.targets" />
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="NSubstitute" Version="4.2.1" />

@@ -5,8 +5,8 @@
 	<UsingTask AssemblyFile="$(TankaSchemaTaskAssembly)" TaskName="SchemaGenerator"/>
 
 	<ItemGroup>
-		<PropertyPageSchema Include="$(MSBuildThisFileDirectory)Tanka.GraphQL.Generator.xaml" />
-		<PropertyPageSchema Include="$(MSBuildThisFileDirectory)Tanka.GraphQL.Generator.ContentType.xaml" />
+		<PropertyPageSchema Include="$(MSBuildThisFileDirectory)tanka.graphql.generator.xaml" />
+		<PropertyPageSchema Include="$(MSBuildThisFileDirectory)tanka.graphql.generator.ContentType.xaml" />
     <AvailableItemName Include="TankaSchema"/>
 	</ItemGroup>
 

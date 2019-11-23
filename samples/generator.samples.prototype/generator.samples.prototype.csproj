@@ -10,8 +10,8 @@
     <TankaGeneratorToolCommand>dotnet</TankaGeneratorToolCommand>
     <TankaGeneratorToolCommandArgs>run --no-build -p $(MSBuildThisFileDirectory)/../../src/generator.tool/ -- gen-model</TankaGeneratorToolCommandArgs>
   </PropertyGroup>
-  <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/Tanka.GraphQL.Generator.props" />
-  <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/Tanka.GraphQL.Generator.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.props" />
+  <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.targets" />
   <ItemGroup>
     <PackageReference Include="tanka.graphql" Version="0.12.0" />
     <PackageReference Include="tanka.graphql.server" Version="0.12.0" />
