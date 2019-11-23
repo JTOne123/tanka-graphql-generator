@@ -3,9 +3,17 @@
 	int: Int
 }
 
+input TestInputObject {
+	int: Int
+	string: String
+	float: Float
+	boolean: Boolean
+}
+
 type ArgumentsTestObject {
 	int(arg: Int): Int
 	string(arg: String): String
 	float(arg: Float): Float
 	boolean(arg: Boolean): Boolean
+	input(arg: TestInputObject): Int
 }

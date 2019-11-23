@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -113,7 +112,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
         private IEnumerable<StatementSyntax> WithFieldMethodBody(
             ObjectType objectType,
-            KeyValuePair<string, IField> field, 
+            KeyValuePair<string, IField> field,
             string methodName)
         {
             yield return LocalDeclarationStatement(
@@ -161,7 +160,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 VariableDeclaration(
                         IdentifierName("var"))
                     .WithVariables(
-                        SingletonSeparatedList<VariableDeclaratorSyntax>(
+                        SingletonSeparatedList(
                             VariableDeclarator(
                                     Identifier("resultTask"))
                                 .WithInitializer(
@@ -186,7 +185,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                 IdentifierName("As")))
                         .WithArgumentList(
                             ArgumentList(
-                                SingletonSeparatedList<ArgumentSyntax>(
+                                SingletonSeparatedList(
                                     Argument(
                                         MemberAccessExpression(
                                             SyntaxKind.SimpleMemberAccessExpression,
@@ -197,7 +196,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 VariableDeclaration(
                         IdentifierName("var"))
                     .WithVariables(
-                        SingletonSeparatedList<VariableDeclaratorSyntax>(
+                        SingletonSeparatedList(
                             VariableDeclarator(
                                     Identifier("result"))
                                 .WithInitializer(
@@ -206,20 +205,20 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                             IdentifierName("resultTask")))))));
 
             yield return ReturnStatement(
-                    InvocationExpression(
+                InvocationExpression(
                         MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
                             IdentifierName("Resolve"),
                             IdentifierName("As")))
                     .WithArgumentList(
                         ArgumentList(
-                            SingletonSeparatedList<ArgumentSyntax>(
+                            SingletonSeparatedList(
                                 Argument(
                                     IdentifierName("result"))))));
         }
 
         private IEnumerable<SyntaxNodeOrToken> WithArguments(
-            ObjectType objectType, 
+            ObjectType objectType,
             KeyValuePair<string, IField> fieldDefinition)
         {
             yield return Argument(IdentifierName("objectValue"));
@@ -243,25 +242,22 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             var argument = argumentDefinition.Value;
             var typeName = CodeModel.SelectTypeName(argument.Type);
 
-            if (argument.Type is InputObjectType)
-            {
-                throw new InvalidOperationException($"Input types not supported");
-            }
+            var getArgumentMethodName = argument.Type is InputObjectType ? "GetObjectArgument" : "GetArgument";
 
             var getArgumentValue = InvocationExpression(
                     MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
                         IdentifierName("context"),
                         GenericName(
-                                Identifier("GetArgument"))
+                                Identifier(getArgumentMethodName))
                             .WithTypeArgumentList(
                                 TypeArgumentList(
                                     SingletonSeparatedList<TypeSyntax>(
                                         IdentifierName(typeName))))))
                 .WithArgumentList(
                     ArgumentList(
-                        SingletonSeparatedList<ArgumentSyntax>(
-                            Argument( LiteralExpression(
+                        SingletonSeparatedList(
+                            Argument(LiteralExpression(
                                 SyntaxKind.StringLiteralExpression,
                                 Literal(rawArgumentName))))));
 
@@ -269,7 +265,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         }
 
         private MethodDeclarationSyntax WithAbstractFieldMethod(
-            string methodName, 
+            string methodName,
             ObjectType objectType,
             KeyValuePair<string, IField> field)
         {
@@ -293,7 +289,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         }
 
         private IEnumerable<SyntaxNodeOrToken> WithParameters(
-            ObjectType objectType, 
+            ObjectType objectType,
             KeyValuePair<string, IField> field)
         {
             yield return Parameter(Identifier("objectValue"))
@@ -311,7 +307,6 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
             yield return Parameter(Identifier("context"))
                 .WithType(IdentifierName(nameof(IResolverContext)));
-
         }
 
         private SyntaxNodeOrToken WithParameter(

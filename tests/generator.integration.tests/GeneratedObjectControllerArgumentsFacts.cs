@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using NSubstitute;
-using Tanka.GraphQL.TypeSystem;
+using Tanka.GraphQL.Generator.Integration.Tests.Model;
 using Tanka.GraphQL.ValueResolution;
 using Xunit;
 
-namespace generator.integration.tests
+namespace tanka.graphql.generator.integration.tests
 {
     public abstract class ArgumentsTestObjectController : ArgumentsTestObjectControllerBase<ArgumentsTestObject>
     {
@@ -13,7 +13,7 @@ namespace generator.integration.tests
 
     public class GeneratedObjectControllerArgumentsFacts
     {
-        private ArgumentsTestObjectController _sut;
+        private readonly ArgumentsTestObjectController _sut;
 
         public GeneratedObjectControllerArgumentsFacts()
         {
@@ -66,13 +66,13 @@ namespace generator.integration.tests
             /* Given */
             var objectValue = new ArgumentsTestObject();
             var context = CreateContext(objectValue);
-            context.GetArgument<float?>("arg").Returns(1.123f);
+            context.GetArgument<double?>("arg").Returns(1.123);
             
             /* When */
             await _sut.Float(context);
 
             /* Then */
-            await _sut.Received().Float(objectValue, 1.123f, context);
+            await _sut.Received().Float(objectValue, 1.123, context);
         }
 
         [Fact]
@@ -88,6 +88,23 @@ namespace generator.integration.tests
 
             /* Then */
             await _sut.Received().Boolean(objectValue, true, context);
+        }
+
+        [Fact]
+        public async Task Single_InputObject_argument()
+        {
+            /* Given */
+            var objectValue = new ArgumentsTestObject();
+            var expected = new TestInputObject();
+            var context = CreateContext(objectValue);
+            context.GetObjectArgument<TestInputObject?>("arg")
+                .Returns(expected);
+            
+            /* When */
+            await _sut.Input(context);
+
+            /* Then */
+            await _sut.Received().Input(objectValue, expected, context);
         }
     }
 }

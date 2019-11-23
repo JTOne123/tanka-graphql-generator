@@ -37,21 +37,18 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         {
             var props = new List<MemberDeclarationSyntax>();
 
-            _schema.Connections(connections =>
+            var fields = _schema.GetFields(_objectType);
+
+            foreach (var field in fields)
             {
-                var fields = connections.GetFields(_objectType);
+                if (AbstractControllerBaseGenerator.IsAbstract(
+                    _schema, 
+                    _objectType, 
+                    field))
+                    continue;
 
-                foreach (var field in fields)
-                {
-                    if (AbstractControllerBaseGenerator.IsAbstract(
-                        _schema, 
-                        _objectType, 
-                        field))
-                        continue;
-
-                    props.Add(GenerateProperty(field));
-                }
-            });
+                props.Add(GenerateProperty(field));
+            }
 
             return props;
         }

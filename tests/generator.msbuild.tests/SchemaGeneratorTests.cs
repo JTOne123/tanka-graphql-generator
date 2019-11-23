@@ -32,23 +32,39 @@ namespace Tanka.GraphQL.Generator.Tests
             }
         }
 
+        /*
+         * <PropertyGroup>
+            <TankaSchemaTaskAssembly>$(MSBuildProjectDirectory)../../../src/generator/bin/$(Configuration)/netstandard2.0/tanka.graphql.generator.dll</TankaSchemaTaskAssembly>
+            <TankaGeneratorToolCommand>$(MSBuildProjectDirectory)../../../src/generator.tool/bin/$(Configuration)/netcoreapp3.0/tanka.graphql.generator.tool.exe</TankaGeneratorToolCommand>
+            <TankaGeneratorToolCommandArgs>gen-model</TankaGeneratorToolCommandArgs>
+        </PropertyGroup>
+  <Import Project="$(MSBuildProjectDirectory)../../../src/generator/build/Tanka.GraphQL.Generator.props" />
+  <Import Project="$(MSBuildProjectDirectory)../../../src/generator/build/Tanka.GraphQL.Generator.targets" />
+         */
+
         [Fact]
         public void BuildTest()
         {
+#if DEBUG
+            string configuration = "Debug";
+#endif
+#if RELEASE
+            string configuration = "Release";
+#endif
+
             var path = "./projects1/project1.csproj";
             var project = ProjectCreator
                 .Create(path, defaultTargets:"GenerateTankaSchema")
                 .PropertyGroup()
+                .Property("Configuration", configuration)
                 .Property("CodeGenerationRoot", "./Generated/")
-                .Property("TankaSchemaTaskAssembly", "../bin/Debug/netstandard2.0/tanka.graphql.generator.dll")
+                .Property("TankaSchemaTaskAssembly", "$(MSBuildProjectDirectory)/../../../../../../src/generator/bin/$(Configuration)/netstandard2.0/tanka.graphql.generator.dll")
                 .Property("RootNamespace", "Tanka.GraphQL.Generator.Tests")
-                .Property("TankaGeneratorToolCommand",
-                    "../../../../../../src/generator.tool/bin/Debug/netcoreapp3.0/tanka.graphql.generator.tool.exe")
-                .Property("TankaGeneratorToolCommandArgs", "gen-model")
+                .Property("TankaGeneratorToolCommand", "dotnet")
+                .Property("TankaGeneratorToolCommandArgs", "run --no-build -p $(MSBuildProjectDirectory)/../../../../../../src/generator.tool/ -- gen-model")
                 .Property("TankaGeneratorForce", "true")
-                .Import("../../../../../../src/generator/build/Tanka.GraphQL.Generator.props")
-                .Import("../../../../../../src/generator/build/Tanka.GraphQL.Generator.targets");
-                //.ItemInclude("TankaSchema", "Data/CRM.graphql");
+                .Import("$(MSBuildProjectDirectory)/../../../../../../src/generator/build/Tanka.GraphQL.Generator.props")
+                .Import("$(MSBuildProjectDirectory)/../../../../../../src/generator/build/Tanka.GraphQL.Generator.targets");
 
             project.TryBuild(out var success, out var log);
             WriteLog(log);

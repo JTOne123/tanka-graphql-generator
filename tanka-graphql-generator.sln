@@ -15,6 +15,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generator.samples.prototype
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0F5C3356-DC59-43FE-B6C1-294161B2ACA2}"
 	ProjectSection(SolutionItems) = preProject
+		azure-pipelines.yml = azure-pipelines.yml
 		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
@@ -22,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generator.core", "src\gener
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generator.msbuild.tests", "tests\generator.msbuild.tests\generator.msbuild.tests.csproj", "{4863003E-E5B0-47C6-BBC9-5563724B79D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "generator.integration.tests", "tests\generator.integration.tests\generator.integration.tests.csproj", "{3A5DF06F-CC23-4A84-B8CD-78A0FE95C4AD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generator.integration.tests", "tests\generator.integration.tests\generator.integration.tests.csproj", "{3A5DF06F-CC23-4A84-B8CD-78A0FE95C4AD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

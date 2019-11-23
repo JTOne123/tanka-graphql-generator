@@ -27,6 +27,9 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 case ObjectType objectType:
                     types.AddRange(GenerateObjectType(objectType));
                     break;
+                case InputObjectType inputObjectType:
+                    types.AddRange(GenerateInputObjectType(inputObjectType));
+                    break;
             }
 
             return types;
@@ -38,6 +41,11 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             yield return new FieldResolversGenerator(objectType, _schema).Generate();
             yield return new AbstractControllerBaseGenerator(objectType, _schema).Generate();
             yield return new PartialObjectTypeModelGenerator(objectType, _schema).Generate();
+        }
+
+        private IEnumerable<MemberDeclarationSyntax> GenerateInputObjectType(InputObjectType inputObjectType)
+        {
+            yield return new InputObjectGenerator(inputObjectType, _schema).Generate();
         }
     }
 }

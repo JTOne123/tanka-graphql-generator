@@ -1,4 +1,5 @@
 trigger:
+  batch: true
   branches:
     include:
     - master
@@ -32,16 +33,26 @@ stages:
         command: build
         projects: |
           src/**/*.csproj
-        arguments: '--configuration $(buildConfiguration)' # Update this to match your need
+        arguments: '--configuration $(buildConfiguration)'
+
     - task: DotNetCoreCLI@2
-      displayName: Test
-      enabled: false
+      displayName: Test msbuild
+      enabled: true
       inputs:
         command: test
-        projects: 'tests/*/*tests.csproj'
+        projects: '**/generator.msbuild.tests.csproj'
+        arguments: '--configuration $(buildConfiguration)'
+
+    - task: DotNetCoreCLI@2
+      displayName: Test integration
+      enabled: true
+      inputs:
+        command: test
+        projects: '**/generator.integration.tests.csproj'
         arguments: '--configuration $(buildConfiguration)'
 
     - task: Bash@3
+      displayName: Pack
       inputs:
         targetType: 'inline'
         script: |
@@ -50,11 +61,13 @@ stages:
           echo -e "##vso[build.updatebuildnumber]$VERSION"
           dotnet pack --configuration $(buildConfiguration) -p:PackageVersion=$VERSION -p:IncludeSymbols=true -p:SymbolPackageFormat=snupkg -o $(Build.ArtifactStagingDirectory)/nuget
         failOnStderr: true
+
     - publish: $(Build.ArtifactStagingDirectory)/nuget
       artifact: nugets
 
 - stage: Release
   displayName: Push packages to NuGet.org
+  condition: eq(variables['Build.SourceBranch'], 'refs/heads/master')
   jobs:
   - job: Push
     steps:
@@ -66,6 +79,7 @@ stages:
         versionSpec: 
 
     - task: NuGetCommand@2
+      displayName: Push
       inputs:
         command: 'push'
         packagesToPush: '$(Pipeline.Workspace)/nugets/*.nupkg'

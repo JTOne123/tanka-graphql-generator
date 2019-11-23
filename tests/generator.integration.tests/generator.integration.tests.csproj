@@ -4,12 +4,14 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <PropertyGroup>
-    <TankaSchemaTaskAssembly>../../../src/generator/bin/Debug/netstandard2.0/tanka.graphql.generator.dll</TankaSchemaTaskAssembly>
-    <TankaGeneratorToolCommand>$(MSBuildThisFileDirectory)../../src/generator.tool/bin/$(Configuration)/netcoreapp3.0/tanka.graphql.generator.tool.exe</TankaGeneratorToolCommand>
-    <TankaGeneratorToolCommandArgs>gen-model</TankaGeneratorToolCommandArgs>
+    <TankaSchemaTaskAssembly>$(MSBuildProjectDirectory)/../../src/generator/bin/Debug/netstandard2.0/tanka.graphql.generator.dll</TankaSchemaTaskAssembly>
+    <TankaGeneratorToolCommand>dotnet</TankaGeneratorToolCommand>
+    <TankaGeneratorToolCommandArgs>run --no-build -p $(MSBuildThisFileDirectory)../../src/generator.tool/ -- gen-model</TankaGeneratorToolCommandArgs>
+    <RootNamespace>Tanka.GraphQL.Generator.Integration.Tests</RootNamespace>
+    <AssemblyName>tanka.graphql.generator.integration.tests</AssemblyName>
   </PropertyGroup>
-  <Import Project="$(MSBuildThisFileDirectory)../../src/generator/build/Tanka.GraphQL.Generator.props" />
-  <Import Project="$(MSBuildThisFileDirectory)../../src/generator/build/Tanka.GraphQL.Generator.targets" />
+  <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/Tanka.GraphQL.Generator.props" />
+  <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/Tanka.GraphQL.Generator.targets" />
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="NSubstitute" Version="4.2.1" />

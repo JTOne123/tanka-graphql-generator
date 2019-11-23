@@ -1,9 +1,10 @@
 ﻿using System.Threading.Tasks;
 using NSubstitute;
+using Tanka.GraphQL.Generator.Integration.Tests.Model;
 using Tanka.GraphQL.ValueResolution;
 using Xunit;
 
-namespace generator.integration.tests
+namespace tanka.graphql.generator.integration.tests
 {
     public class NullabilityTestObjectController : NullabilityTestObjectControllerBase<NullabilityTestObject>
     {

@@ -64,25 +64,43 @@ namespace Tanka.GraphQL.Generator.Core
         {
             return namedType switch
             {
-                ScalarType scalar => SelectTypeName(scalar),
-                ObjectType objectType => SelectTypeName(objectType),
-                EnumType enumType => SelectTypeName(enumType),
+                ScalarType scalar => SelectScalarTypeName(scalar),
+                ObjectType objectType => SelectObjectTypeName(objectType),
+                EnumType enumType => SelectEnumTypeName(enumType),
+                InputObjectType inputObjectType=> SelectInputObjectTypeName(inputObjectType),
                 //todo: union special wrapping
                 _ => "object"
             };
         }
 
-        private static string SelectTypeName(EnumType objectType)
+        public static string SelectFieldTypeName(SchemaBuilder schema, InputObjectType inputObjectType, KeyValuePair<string, InputObjectField> fieldDefinition)
+        {
+            if (schema.TryGetDirective("gen", out _))
+            {
+                if (fieldDefinition.Value.HasDirective("gen"))
+                {
+                    var gen = fieldDefinition.Value.GetDirective("gen");
+
+                    var clrType = gen.GetArgument<string>("clrType");
+                    if (!string.IsNullOrEmpty(clrType))
+                        return clrType;
+                }
+            }
+
+            return SelectTypeName(fieldDefinition.Value.Type);
+        }
+
+        private static string SelectEnumTypeName(EnumType objectType)
         {
             return objectType.Name.ToModelName();
         }
 
-        private static string SelectTypeName(ObjectType objectType)
+        private static string SelectObjectTypeName(ObjectType objectType)
         {
             return objectType.Name.ToModelName();
         }
 
-        private static string SelectTypeName(ScalarType scalar)
+        private static string SelectScalarTypeName(ScalarType scalar)
         {
             if (StandardScalarToClrType.TryGetValue(scalar.Name, out var value))
             {
@@ -92,9 +110,14 @@ namespace Tanka.GraphQL.Generator.Core
             return "object";
         }
 
+        private static string SelectInputObjectTypeName(InputObjectType inputObjectType)
+        {
+            return inputObjectType.Name.ToModelName();
+        }
+
         private static readonly Dictionary<string, string> StandardScalarToClrType = new Dictionary<string, string>()
         {
-            [ScalarType.Float.Name] = "float",
+            [ScalarType.Float.Name] = "double",
             [ScalarType.Boolean.Name] = "bool",
             [ScalarType.ID.Name] = "string",
             [ScalarType.Int.Name] = "int",
