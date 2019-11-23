@@ -2,7 +2,7 @@
 <Project
 	xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-		<TankaSchemaTaskAssembly Condition="'$(TankaSchemaTaskAssembly)' == ''">netstandard2.0\Tanka.GraphQL.Generator.dll</TankaSchemaTaskAssembly>
+		<TankaSchemaTaskAssembly Condition="'$(TankaSchemaTaskAssembly)' == ''">netstandard2.0\tanka.graphql.generator.dll</TankaSchemaTaskAssembly>
     <TankaGeneratorToolCommand Condition="'$(TankaGeneratorToolCommand)' == ''">dotnet</TankaGeneratorToolCommand>
     <TankaGeneratorToolCommandArgs Condition="'$(TankaGeneratorToolCommandArgs)' == ''">tanka-graphql gen-model</TankaGeneratorToolCommandArgs>
     <TankaGeneratorForce Condition="'$(TankaGeneratorForce)' == ''">false</TankaGeneratorForce>
