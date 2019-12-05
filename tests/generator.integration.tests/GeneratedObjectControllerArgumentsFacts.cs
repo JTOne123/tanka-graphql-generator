@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Threading.Tasks;
 using NSubstitute;
 using Tanka.GraphQL.Generator.Integration.Tests.Model;
 using Tanka.GraphQL.ValueResolution;
@@ -36,7 +38,10 @@ namespace tanka.graphql.generator.integration.tests
             /* Given */
             var objectValue = new ArgumentsTestObject();
             var context = CreateContext(objectValue);
-            context.GetArgument<int?>("arg").Returns(1);
+            context.Arguments.Returns(new Dictionary<string, object>()
+            {
+                ["arg"] = 1
+            });
 
             /* When */
             await _sut.Int(context);
@@ -51,8 +56,11 @@ namespace tanka.graphql.generator.integration.tests
             /* Given */
             var objectValue = new ArgumentsTestObject();
             var context = CreateContext(objectValue);
-            context.GetArgument<string?>("arg").Returns("hello");
-            
+            context.Arguments.Returns(new Dictionary<string, object>()
+            {
+                ["arg"] = "hello"
+            });
+
             /* When */
             await _sut.String(context);
 
@@ -66,7 +74,10 @@ namespace tanka.graphql.generator.integration.tests
             /* Given */
             var objectValue = new ArgumentsTestObject();
             var context = CreateContext(objectValue);
-            context.GetArgument<double?>("arg").Returns(1.123);
+            context.Arguments.Returns(new Dictionary<string, object>()
+            {
+                ["arg"] = 1.123
+            });
             
             /* When */
             await _sut.Float(context);
@@ -81,7 +92,10 @@ namespace tanka.graphql.generator.integration.tests
             /* Given */
             var objectValue = new ArgumentsTestObject();
             var context = CreateContext(objectValue);
-            context.GetArgument<bool?>("arg").Returns(true);
+            context.Arguments.Returns(new Dictionary<string, object>()
+            {
+                ["arg"] = true
+            });
             
             /* When */
             await _sut.Boolean(context);
@@ -95,16 +109,20 @@ namespace tanka.graphql.generator.integration.tests
         {
             /* Given */
             var objectValue = new ArgumentsTestObject();
-            var expected = new TestInputObject();
             var context = CreateContext(objectValue);
-            context.GetObjectArgument<TestInputObject?>("arg")
-                .Returns(expected);
-            
+            context.Arguments.Returns(new Dictionary<string, object>()
+            {
+                ["arg"] = new Dictionary<string, object>()
+                {
+                    ["int"] = 1
+                }
+            });
+
             /* When */
             await _sut.Input(context);
 
             /* Then */
-            await _sut.Received().Input(objectValue, expected, context);
+            await _sut.Received().Input(objectValue, Arg.Is<TestInputObject>(ti => ti.Int == 1), context);
         }
     }
 }

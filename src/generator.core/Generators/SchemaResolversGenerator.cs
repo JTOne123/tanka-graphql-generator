@@ -22,7 +22,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
         public MemberDeclarationSyntax Generate()
         {
-            var resolversName = $"{_name}Resolvers";
+            var resolversName = _name.ToSchemaResolversName();
             return ClassDeclaration(resolversName)
                 .WithModifiers(
                     TokenList(
@@ -31,7 +31,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                     BaseList(
                         SingletonSeparatedList<BaseTypeSyntax>(
                             SimpleBaseType(
-                                IdentifierName("ObjectTypeMap")))))
+                                IdentifierName(nameof(ObjectTypeMap))))))
                 .WithMembers(
                     SingletonList<MemberDeclarationSyntax>(
                         ConstructorDeclaration(
@@ -54,7 +54,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             var resolversName = objectName.ToFieldResolversName();
             return ExpressionStatement(
                 InvocationExpression(
-                        IdentifierName("Add"))
+                        IdentifierName(nameof(ObjectTypeMap.Add)))
                     .WithArgumentList(
                         ArgumentList(
                             SeparatedList<ArgumentSyntax>(

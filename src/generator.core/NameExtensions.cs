@@ -34,6 +34,12 @@ namespace Tanka.GraphQL.Generator.Core
             return $"{name}Fields";
         }
 
+        public static string ToSchemaResolversName(this string name)
+        {
+            if (name == null) throw new ArgumentNullException(nameof(name));
+            return $"{name}Resolvers";
+        }
+
         public static string ToFieldArgumentName(this string name)
         {
             return name.Sanitize();

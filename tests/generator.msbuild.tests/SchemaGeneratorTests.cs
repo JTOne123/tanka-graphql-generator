@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using Microsoft.Build.Evaluation;
-using Microsoft.Build.Utilities.ProjectCreation;
+﻿using Microsoft.Build.Utilities.ProjectCreation;
 using Xunit;
 using Xunit.Abstractions;
 
-namespace Tanka.GraphQL.Generator.Tests
+namespace Tanka.GraphQL.Generator.MSBuild.Tests
 {
     public class SchemaGeneratorTests : MSBuildTestBase
     {

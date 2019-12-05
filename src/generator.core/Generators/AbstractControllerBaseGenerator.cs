@@ -94,7 +94,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList<TypeSyntax>(
-                                    IdentifierName(nameof(IResolveResult))))),
+                                    IdentifierName(nameof(IResolverResult))))),
                     Identifier(methodName))
                 .WithModifiers(
                     TokenList(
@@ -252,7 +252,9 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             var argument = argumentDefinition.Value;
             var typeName = CodeModel.SelectTypeName(argument.Type);
 
-            var getArgumentMethodName = argument.Type is InputObjectType ? "GetObjectArgument" : "GetArgument";
+            var getArgumentMethodName = argument.Type is InputObjectType 
+                ? nameof(ResolverContextExtensions.GetObjectArgument) 
+                : nameof(ResolverContextExtensions.GetArgument);
 
             var getArgumentValue = InvocationExpression(
                     MemberAccessExpression(
@@ -343,7 +345,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             var resultTypeName = CodeModel.SelectFieldTypeName(_schema, _objectType, field);
             return MethodDeclaration(
                     GenericName(
-                            Identifier("ValueTask"))
+                            Identifier(nameof(ValueTask)))
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList<TypeSyntax>(
@@ -372,7 +374,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                             ReturnStatement(
                                 ObjectCreationExpression(
                                         GenericName(
-                                                Identifier("ValueTask"))
+                                                Identifier(nameof(ValueTask)))
                                             .WithTypeArgumentList(
                                                 TypeArgumentList(
                                                     SingletonSeparatedList<TypeSyntax>(

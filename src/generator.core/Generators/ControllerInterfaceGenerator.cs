@@ -52,7 +52,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList<TypeSyntax>(
-                                    IdentifierName(nameof(IResolveResult))))),
+                                    IdentifierName(nameof(IResolverResult))))),
                     Identifier(methodName))
                 .WithParameterList(
                     ParameterList(

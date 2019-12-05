@@ -13,7 +13,7 @@
   <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.props" />
   <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.targets" />
   <ItemGroup>
-    <PackageReference Include="tanka.graphql" Version="0.12.0" />
-    <PackageReference Include="tanka.graphql.server" Version="0.12.0" />
+    <PackageReference Include="tanka.graphql" Version="0.13.1" />
+    <PackageReference Include="tanka.graphql.server" Version="0.13.1" />
   </ItemGroup>
 </Project>

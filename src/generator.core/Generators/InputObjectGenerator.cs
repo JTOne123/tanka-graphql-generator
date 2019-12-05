@@ -47,7 +47,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             return MethodDeclaration(
                     PredefinedType(
                         Token(SyntaxKind.VoidKeyword)),
-                    Identifier("Read"))
+                    Identifier(nameof(IReadFromObjectDictionary.Read)))
                 .WithModifiers(
                     TokenList(
                         Token(SyntaxKind.PublicKeyword)))
