@@ -252,7 +252,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             var argument = argumentDefinition.Value;
             var typeName = CodeModel.SelectTypeName(argument.Type);
 
-            var getArgumentMethodName = argument.Type is InputObjectType 
+            var getArgumentMethodName = argument.Type.Unwrap() is InputObjectType 
                 ? nameof(ResolverContextExtensions.GetObjectArgument) 
                 : nameof(ResolverContextExtensions.GetArgument);
 
