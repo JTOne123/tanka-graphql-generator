@@ -13,34 +13,54 @@ namespace Tanka.GraphQL.Generator.Core.Generators
     {
         private readonly ObjectType _objectType;
         private readonly SchemaBuilder _schema;
+        private string _name;
 
         public FieldResolversGenerator(ObjectType objectType, SchemaBuilder schema)
         {
             _objectType = objectType;
             _schema = schema;
+            _name = _objectType.Name.ToFieldResolversName();
         }
 
         public MemberDeclarationSyntax Generate()
         {
-            var name = _objectType.Name.ToFieldResolversName();
-
-            return ClassDeclaration(name)
+            return ClassDeclaration(_name)
                 .WithModifiers(
                     TokenList(
-                        Token(SyntaxKind.PublicKeyword)))
+                        Token(SyntaxKind.PublicKeyword),
+                        Token(SyntaxKind.PartialKeyword)))
                 .WithBaseList(
                     BaseList(
                         SingletonSeparatedList<BaseTypeSyntax>(
                             SimpleBaseType(
                                 IdentifierName(nameof(FieldResolversMap))))))
                 .WithMembers(
-                    SingletonList<MemberDeclarationSyntax>(
-                        ConstructorDeclaration(
-                                Identifier(name))
-                            .WithModifiers(
-                                TokenList(
-                                    Token(SyntaxKind.PublicKeyword)))
-                            .WithBody(Block(WithResolvers()))));
+                    List(WithMembers()));
+        }
+
+        private IEnumerable<MemberDeclarationSyntax> WithMembers()
+        {
+            yield return WithConstructor();
+            yield return MethodDeclaration(
+                    PredefinedType(
+                        Token(SyntaxKind.VoidKeyword)),
+                    Identifier("Modify"))
+                .WithModifiers(
+                    TokenList(
+                        new []{
+                            Token(SyntaxKind.PartialKeyword)}))
+                .WithSemicolonToken(
+                    Token(SyntaxKind.SemicolonToken));
+        }
+
+        private MemberDeclarationSyntax WithConstructor()
+        {
+            return ConstructorDeclaration(
+                    Identifier(_name))
+                .WithModifiers(
+                    TokenList(
+                        Token(SyntaxKind.PublicKeyword)))
+                .WithBody(Block(WithResolvers()));
         }
 
         private List<StatementSyntax> WithResolvers()
@@ -52,7 +72,24 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 statements = fields.Select(field => WithAddResolver(field))
                     .ToList();
             });
+
+            statements.Add(ExpressionStatement(InvocationExpression(IdentifierName("Modify"))));
+
             return statements;
+        }
+
+        private IEnumerable<MemberDeclarationSyntax> WithModify()
+        {
+            yield return MethodDeclaration(
+                    PredefinedType(
+                        Token(SyntaxKind.VoidKeyword)),
+                    Identifier("Modify"))
+                .WithModifiers(
+                    TokenList(
+                        new []{
+                            Token(SyntaxKind.PartialKeyword)}))
+                .WithSemicolonToken(
+                    Token(SyntaxKind.SemicolonToken));
         }
 
         private StatementSyntax WithAddResolver(in KeyValuePair<string, IField> field)

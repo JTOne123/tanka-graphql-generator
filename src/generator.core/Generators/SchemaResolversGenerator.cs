@@ -13,39 +13,65 @@ namespace Tanka.GraphQL.Generator.Core.Generators
     {
         private readonly SchemaBuilder _schema;
         private readonly string _name;
+        private string _resolversName;
 
         public SchemaResolversGenerator(SchemaBuilder schema, string name)
         {
             _schema = schema;
             _name = name;
+            _resolversName = _name.ToSchemaResolversName();
         }
 
         public MemberDeclarationSyntax Generate()
         {
-            var resolversName = _name.ToSchemaResolversName();
-            return ClassDeclaration(resolversName)
+            return ClassDeclaration(_resolversName)
                 .WithModifiers(
                     TokenList(
-                        Token(SyntaxKind.PublicKeyword)))
+                        Token(SyntaxKind.PublicKeyword),
+                        Token(SyntaxKind.PartialKeyword)))
                 .WithBaseList(
                     BaseList(
                         SingletonSeparatedList<BaseTypeSyntax>(
                             SimpleBaseType(
                                 IdentifierName(nameof(ObjectTypeMap))))))
                 .WithMembers(
-                    SingletonList<MemberDeclarationSyntax>(
-                        ConstructorDeclaration(
-                                Identifier(resolversName))
-                            .WithModifiers(
-                                TokenList(
-                                    Token(SyntaxKind.PublicKeyword)))
-                            .WithBody(Block(WithAddObjectResolvers()))));
+                    List(WithMembers()));
+        }
+
+        private IEnumerable<MemberDeclarationSyntax> WithMembers()
+        {
+            yield return WithConstructor();
+            yield return MethodDeclaration(
+                    PredefinedType(
+                        Token(SyntaxKind.VoidKeyword)),
+                    Identifier("Modify"))
+                .WithModifiers(
+                    TokenList(
+                        new []{
+                            Token(SyntaxKind.PartialKeyword)}))
+                .WithSemicolonToken(
+                    Token(SyntaxKind.SemicolonToken));
+        }
+
+        private MemberDeclarationSyntax WithConstructor()
+        {
+            return ConstructorDeclaration(
+                    Identifier(_resolversName))
+                .WithModifiers(
+                    TokenList(
+                        Token(SyntaxKind.PublicKeyword)))
+                .WithBody(Block(WithAddObjectResolvers()));
         }
 
         private IEnumerable<StatementSyntax> WithAddObjectResolvers()
         {
             var objectTypes = _schema.GetTypes<ObjectType>();
-            return objectTypes.Select(WithAddObjectFieldResolvers);
+            foreach (var objectType in objectTypes)
+            {
+                yield return WithAddObjectFieldResolvers(objectType);
+            }
+
+            yield return ExpressionStatement(InvocationExpression(IdentifierName("Modify")));
         }
 
         private StatementSyntax WithAddObjectFieldResolvers(ObjectType objectType)

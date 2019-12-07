@@ -27,7 +27,8 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             return InterfaceDeclaration(controllerInterfaceName)
                 .WithModifiers(
                     TokenList(
-                        Token(SyntaxKind.PublicKeyword)))
+                        Token(SyntaxKind.PublicKeyword),
+                        Token(SyntaxKind.PartialKeyword)))
                 .WithMembers(List(GenerateFields(_objectType, _schema)));
         }
 
