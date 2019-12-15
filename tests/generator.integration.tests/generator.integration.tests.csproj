@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <PropertyGroup>
@@ -24,8 +24,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="tanka.graphql" Version="0.13.1" />
-    <PackageReference Include="tanka.graphql.server" Version="0.13.1" />
+    <PackageReference Include="tanka.graphql" Version="0.14.0-beta.11" />
+    <PackageReference Include="tanka.graphql.server" Version="0.14.0-beta.11" />
   </ItemGroup>
 
 </Project>
