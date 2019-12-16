@@ -27,5 +27,10 @@ namespace Tanka.GraphQL.SchemaBuilding
 
             return fields;
         }
+
+        public static bool IsSubscriptionType(this SchemaBuilder builder , ObjectType objectType)
+        {
+            return builder.SubscriptionTypeName == objectType.Name;
+        }
     }
 }

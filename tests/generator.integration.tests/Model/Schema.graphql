@@ -17,3 +17,7 @@ type ArgumentsTestObject {
 	boolean(arg: Boolean): Boolean
 	input(arg: TestInputObject): Int
 }
+
+type Subscription {
+	randomNumber: Int!
+}

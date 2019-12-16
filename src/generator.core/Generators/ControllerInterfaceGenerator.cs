@@ -1,6 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Tanka.GraphQL.SchemaBuilding;
@@ -34,21 +36,24 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
         private IEnumerable<MemberDeclarationSyntax> GenerateFields(ObjectType objectType, SchemaBuilder schema)
         {
-            var members = new List<MemberDeclarationSyntax>();
-            schema.Connections(connections =>
-            {
-                members = connections.GetFields(objectType)
-                    .Select(field => GenerateField(objectType, field, schema))
-                    .ToList();
-            });
+            var members = _schema.GetFields(objectType)
+                .SelectMany(field => GenerateField(objectType, field, schema))
+                .ToList();
+
             return members;
         }
 
-        private MemberDeclarationSyntax GenerateField(ObjectType objectType, in KeyValuePair<string, IField> field,
+        private IEnumerable<MemberDeclarationSyntax> GenerateField(ObjectType objectType, KeyValuePair<string, IField> field,
             SchemaBuilder schema)
         {
             var methodName = field.Key.ToFieldResolverName();
-            return MethodDeclaration(
+            var isSubscription = _schema.IsSubscriptionType(objectType);
+
+            if (isSubscription)
+                foreach (var member in GenerateSubscriptionField(objectType, field))
+                    yield return member;
+
+            yield return MethodDeclaration(
                     GenericName(Identifier(nameof(ValueTask)))
                         .WithTypeArgumentList(
                             TypeArgumentList(
@@ -62,6 +67,38 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                     Identifier("context"))
                                 .WithType(
                                     IdentifierName(nameof(IResolverContext))))))
+                .WithSemicolonToken(
+                    Token(SyntaxKind.SemicolonToken));
+        }
+
+        private IEnumerable<MemberDeclarationSyntax> GenerateSubscriptionField(ObjectType objectType, KeyValuePair<string, IField> field)
+        {
+            var methodName = field.Key.ToFieldResolverName();
+            var returnType = nameof(ISubscriberResult);
+
+            yield return MethodDeclaration(
+                    GenericName(
+                            Identifier("ValueTask"))
+                        .WithTypeArgumentList(
+                            TypeArgumentList(
+                                SingletonSeparatedList<TypeSyntax>(
+                                    IdentifierName(returnType)))),
+                    Identifier(methodName))
+                .WithParameterList(
+                    ParameterList(
+                        SeparatedList<ParameterSyntax>(
+                            new SyntaxNodeOrToken[]
+                            {
+                                Parameter(
+                                        Identifier("context"))
+                                    .WithType(
+                                        IdentifierName(nameof(IResolverContext))),
+                                Token(SyntaxKind.CommaToken),
+                                Parameter(
+                                        Identifier("unsubscribe"))
+                                    .WithType(
+                                        IdentifierName(nameof(CancellationToken)))
+                            })))
                 .WithSemicolonToken(
                     Token(SyntaxKind.SemicolonToken));
         }

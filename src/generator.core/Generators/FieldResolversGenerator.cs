@@ -65,13 +65,9 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
         private List<StatementSyntax> WithResolvers()
         {
-            var statements = new List<StatementSyntax>();
-            _schema.Connections(connections =>
-            {
-                var fields = connections.GetFields(_objectType);
-                statements = fields.Select(field => WithAddResolver(field))
-                    .ToList();
-            });
+            var statements = _schema.GetFields(_objectType)
+                .SelectMany(WithAddResolver)
+                .ToList();
 
             statements.Add(ExpressionStatement(InvocationExpression(IdentifierName("Modify"))));
 
@@ -92,11 +88,103 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                     Token(SyntaxKind.SemicolonToken));
         }
 
-        private StatementSyntax WithAddResolver(in KeyValuePair<string, IField> field)
+        private IEnumerable<StatementSyntax> WithAddResolver(KeyValuePair<string, IField> field)
+        {
+            var isSubscription = _schema.IsSubscriptionType(_objectType);
+
+            if (isSubscription)
+            {
+                yield return WithAddSubscriber(field);
+                yield break;
+            }
+
+
+            var interfaceName = _objectType.Name.ToControllerName().ToInterfaceName();
+            var fieldName = field.Key;
+            var methodName = fieldName.ToFieldResolverName();
+
+            yield return ExpressionStatement(
+                InvocationExpression(
+                        IdentifierName(nameof(FieldResolversMap.Add)))
+                    .WithArgumentList(
+                        ArgumentList(
+                            SeparatedList<ArgumentSyntax>(
+                                new SyntaxNodeOrToken[]
+                                {
+                                    Argument(
+                                        LiteralExpression(
+                                            SyntaxKind.StringLiteralExpression,
+                                            Literal(fieldName))),
+                                    Token(SyntaxKind.CommaToken),
+                                    Argument(
+                                        SimpleLambdaExpression(
+                                            Parameter(
+                                                Identifier("context")),
+                                            InvocationExpression(
+                                                    MemberAccessExpression(
+                                                        SyntaxKind.SimpleMemberAccessExpression,
+                                                        InvocationExpression(
+                                                            MemberAccessExpression(
+                                                                SyntaxKind.SimpleMemberAccessExpression,
+                                                                IdentifierName("context"),
+                                                                GenericName(
+                                                                        Identifier("Use"))
+                                                                    .WithTypeArgumentList(
+                                                                        TypeArgumentList(
+                                                                            SingletonSeparatedList<TypeSyntax>(
+                                                                                IdentifierName(interfaceName)))))),
+                                                        IdentifierName(methodName)))
+                                                .WithArgumentList(
+                                                    ArgumentList(
+                                                        SingletonSeparatedList(
+                                                            Argument(
+                                                                IdentifierName("context")))))))
+                                }))));
+        }
+
+        private StatementSyntax WithAddSubscriber(KeyValuePair<string, IField> field)
         {
             var interfaceName = _objectType.Name.ToControllerName().ToInterfaceName();
             var fieldName = field.Key;
             var methodName = fieldName.ToFieldResolverName();
+
+            var subscribe = Argument(
+                ParenthesizedLambdaExpression(
+                    ParameterList(
+                        SeparatedList<ParameterSyntax>(
+                            new SyntaxNodeOrToken[]
+                            {
+                                Parameter(Identifier("context")),
+                                Token(SyntaxKind.CommaToken),
+                                Parameter(Identifier("unsubscribe"))
+                            })),
+                        InvocationExpression(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    InvocationExpression(
+                                        MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            IdentifierName("context"),
+                                            GenericName(
+                                                    Identifier("Use"))
+                                                .WithTypeArgumentList(
+                                                    TypeArgumentList(
+                                                        SingletonSeparatedList<TypeSyntax>(
+                                                            IdentifierName(
+                                                                "ISubscriptionController")))))),
+                                    IdentifierName("RandomNumber")))
+                            .WithArgumentList(
+                                ArgumentList(
+                                    SeparatedList<ArgumentSyntax>(
+                                        new SyntaxNodeOrToken[]
+                                        {
+                                            Argument(
+                                                IdentifierName("context")),
+                                            Token(SyntaxKind.CommaToken),
+                                            Argument(
+                                                IdentifierName("unsubscribe"))
+                                        })))));
+
             return ExpressionStatement(
                 InvocationExpression(
                         IdentifierName(nameof(FieldResolversMap.Add)))
@@ -109,6 +197,8 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                         LiteralExpression(
                                             SyntaxKind.StringLiteralExpression,
                                             Literal(fieldName))),
+                                    Token(SyntaxKind.CommaToken),
+                                    subscribe,
                                     Token(SyntaxKind.CommaToken),
                                     Argument(
                                         SimpleLambdaExpression(

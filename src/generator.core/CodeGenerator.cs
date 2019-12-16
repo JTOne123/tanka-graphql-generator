@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -51,6 +52,7 @@ namespace Tanka.GraphQL.Generator.Core
                     UsingDirective(ParseName("System")),
                     UsingDirective(ParseName(typeof(IEnumerable<>).Namespace)),
                     UsingDirective(ParseName(typeof(ValueTask<>).Namespace)),
+                    UsingDirective(ParseName(typeof(CancellationToken).Namespace)),
                     UsingDirective(ParseName("Tanka.GraphQL")),
                     UsingDirective(ParseName("Tanka.GraphQL.ValueResolution")),
                     UsingDirective(ParseName("Tanka.GraphQL.Server"))

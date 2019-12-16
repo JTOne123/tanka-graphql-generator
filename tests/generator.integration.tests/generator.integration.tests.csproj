@@ -24,8 +24,8 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="tanka.graphql" Version="0.14.0-beta.11" />
-    <PackageReference Include="tanka.graphql.server" Version="0.14.0-beta.11" />
+    <PackageReference Include="tanka.graphql" Version="0.14.0-beta.13" />
+    <PackageReference Include="tanka.graphql.server" Version="0.14.0-beta.13" />
   </ItemGroup>
 
 </Project>

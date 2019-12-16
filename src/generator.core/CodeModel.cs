@@ -173,6 +173,9 @@ namespace Tanka.GraphQL.Generator.Core
             if (type is UnionType)
                 return true;
 
+            if (schema.IsSubscriptionType(objectType))
+                return true;
+
             return false;
         }
     }

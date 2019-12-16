@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.CodeAnalysis.CSharp;
+﻿using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Tanka.GraphQL.SchemaBuilding;
 using Tanka.GraphQL.TypeSystem;
-using Type = System.Type;
 
 namespace Tanka.GraphQL.Generator.Core.Generators
 {
     public class NamedTypeGenerator
     {
-        private readonly INamedType _type;
         private readonly SchemaBuilder _schema;
+        private readonly INamedType _type;
 
         public NamedTypeGenerator(INamedType type, SchemaBuilder schema)
         {
@@ -22,10 +18,6 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
         public IEnumerable<MemberDeclarationSyntax> Generate()
         {
-            //todo: subscriptions
-            if (_type.Name == "Subscription")
-                return Enumerable.Empty<MemberDeclarationSyntax>();
-
             var types = new List<MemberDeclarationSyntax>();
 
             switch (_type)

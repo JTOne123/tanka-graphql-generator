@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
@@ -16,8 +17,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
         private static readonly List<string> RootObjectTypeNames = new List<string>
         {
             "Query",
-            "Mutation",
-            "Subscription"
+            "Mutation"
         };
 
         private readonly ObjectType _objectType;
@@ -72,13 +72,10 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
         private IEnumerable<MemberDeclarationSyntax> GenerateFields(ObjectType objectType, SchemaBuilder schema)
         {
-            var members = new List<MemberDeclarationSyntax>();
-            schema.Connections(connections =>
-            {
-                members = connections.GetFields(objectType)
-                    .SelectMany(field => GenerateField(objectType, field, schema))
-                    .ToList();
-            });
+            var members = _schema.GetFields(objectType)
+                .SelectMany(field => GenerateField(objectType, field, schema))
+                .ToList();
+
             return members;
         }
 
@@ -87,14 +84,26 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             KeyValuePair<string, IField> field,
             SchemaBuilder schema)
         {
+            var isSubscription = _schema.IsSubscriptionType(objectType);
+
+            if (isSubscription)
+            {
+                foreach (var member in GenerateSubscriptionField(field))
+                {
+                    yield return member;
+                }
+            }
+
+            //  Query or Mutation or Subscription resolver
             var methodName = field.Key.ToFieldResolverName();
+            var returnType = nameof(IResolverResult);
 
             yield return MethodDeclaration(
                     GenericName(Identifier(nameof(ValueTask)))
                         .WithTypeArgumentList(
                             TypeArgumentList(
                                 SingletonSeparatedList<TypeSyntax>(
-                                    IdentifierName(nameof(IResolverResult))))),
+                                    IdentifierName(returnType)))),
                     Identifier(methodName))
                 .WithModifiers(
                     TokenList(
@@ -111,10 +120,47 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 .WithBody(Block(WithFieldMethodBody(objectType, field, methodName)))
                 .WithTrailingTrivia(CarriageReturnLineFeed);
 
-            if (IsAbstract(schema, objectType, field) || RootObjectTypeNames.Contains(_objectType.Name))
+            if (IsAbstract(schema, objectType, field) 
+                || RootObjectTypeNames.Contains(_objectType.Name)
+                || isSubscription)
                 yield return WithAbstractFieldMethod(methodName, objectType, field);
             else
                 yield return WithPropertyFieldMethod(methodName, objectType, field);
+        }
+
+        private IEnumerable<MemberDeclarationSyntax> GenerateSubscriptionField(KeyValuePair<string, IField> field)
+        {
+            var methodName = field.Key.ToFieldResolverName();
+            var returnType = nameof(ISubscriberResult);
+
+            yield return MethodDeclaration(
+                    GenericName(
+                            Identifier("ValueTask"))
+                        .WithTypeArgumentList(
+                            TypeArgumentList(
+                                SingletonSeparatedList<TypeSyntax>(
+                                    IdentifierName(returnType)))),
+                    Identifier(methodName))
+                .WithModifiers(
+                    TokenList(
+                        new []{
+                            Token(SyntaxKind.PublicKeyword),
+                            Token(SyntaxKind.AbstractKeyword)}))
+                .WithParameterList(
+                    ParameterList(
+                        SeparatedList<ParameterSyntax>(
+                            new SyntaxNodeOrToken[]{
+                                Parameter(
+                                        Identifier("context"))
+                                    .WithType(
+                                        IdentifierName(nameof(IResolverContext))),
+                                Token(SyntaxKind.CommaToken),
+                                Parameter(
+                                        Identifier("unsubscribe"))
+                                    .WithType(
+                                        IdentifierName(nameof(CancellationToken)))})))
+                .WithSemicolonToken(
+                    Token(SyntaxKind.SemicolonToken));
         }
 
         private IEnumerable<StatementSyntax> WithFieldMethodBody(
