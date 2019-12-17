@@ -314,7 +314,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
             if (isSubscription)
             {
-                asType = CodeModel.SelectFieldTypeName(_schema, objectType, field);
+                asType = "object";
             }
 
             yield return LocalDeclarationStatement(
@@ -513,13 +513,13 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             }
             else
             {
-                var subscriptionType = CodeModel.SelectFieldTypeName(
+                /*var subscriptionType = CodeModel.SelectFieldTypeName(
                     _schema,
                     _objectType,
-                    field);
+                    field);*/
 
                 yield return Parameter(Identifier("objectValue"))
-                    .WithType(IdentifierName(subscriptionType));
+                    .WithType(IdentifierName("object"));
             }
 
             var arguments = field.Value.Arguments;
