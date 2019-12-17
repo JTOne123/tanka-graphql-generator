@@ -22,4 +22,6 @@ type Subscription {
 	int: Int!
 	intWithArgument(arg1: Int!): Int!
 	intWithTwoArguments(arg1: Int!, arg2: String): Int!
+
+	object: ArgumentsTestObject
 }

@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Tanka.GraphQL.Introspection;
 using Tanka.GraphQL.SchemaBuilding;
 using Tanka.GraphQL.TypeSystem;
 using Tanka.GraphQL.ValueResolution;
@@ -307,6 +308,15 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             KeyValuePair<string, IField> field,
             string methodName)
         {
+            var asType = "T";
+
+            var isSubscription = _schema.IsSubscriptionType(objectType);
+
+            if (isSubscription)
+            {
+                asType = CodeModel.SelectFieldTypeName(_schema, objectType, field);
+            }
+
             yield return LocalDeclarationStatement(
                 VariableDeclaration(
                         IdentifierName("var"))
@@ -316,16 +326,16 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                     Identifier("objectValue"))
                                 .WithInitializer(
                                     EqualsValueClause(
-                                        BinaryExpression(
-                                            SyntaxKind.AsExpression,
+                                        CastExpression(
+                                            IdentifierName(asType),
                                             MemberAccessExpression(
                                                 SyntaxKind.SimpleMemberAccessExpression,
                                                 IdentifierName("context"),
-                                                IdentifierName("ObjectValue")),
-                                            IdentifierName("T")))))));
+                                                IdentifierName("ObjectValue"))
+                                            ))))));
 
 
-            if (!RootObjectTypeNames.Contains(_objectType.Name))
+            if (!RootObjectTypeNames.Contains(_objectType.Name) && !isSubscription)
                 yield return IfStatement(
                         BinaryExpression(
                             SyntaxKind.EqualsExpression,
@@ -486,16 +496,31 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                     Token(SyntaxKind.SemicolonToken));
         }
 
-        public static IEnumerable<SyntaxNodeOrToken> WithParameters(
+        private  IEnumerable<SyntaxNodeOrToken> WithParameters(
             ObjectType objectType,
             KeyValuePair<string, IField> field)
         {
-            if (RootObjectTypeNames.Contains(objectType.Name))
-                yield return Parameter(Identifier("objectValue"))
-                    .WithType(IdentifierName("T?"));
+            var isSubscription = _schema.IsSubscriptionType(objectType);
+
+            if (!isSubscription)
+            {
+                if (RootObjectTypeNames.Contains(objectType.Name))
+                    yield return Parameter(Identifier("objectValue"))
+                        .WithType(IdentifierName("T?"));
+                else
+                    yield return Parameter(Identifier("objectValue"))
+                        .WithType(IdentifierName("T"));
+            }
             else
+            {
+                var subscriptionType = CodeModel.SelectFieldTypeName(
+                    _schema,
+                    _objectType,
+                    field);
+
                 yield return Parameter(Identifier("objectValue"))
-                    .WithType(IdentifierName("T"));
+                    .WithType(IdentifierName(subscriptionType));
+            }
 
             var arguments = field.Value.Arguments;
 
