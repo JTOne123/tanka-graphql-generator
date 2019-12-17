@@ -121,8 +121,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 .WithTrailingTrivia(CarriageReturnLineFeed);
 
             if (IsAbstract(schema, objectType, field) 
-                || RootObjectTypeNames.Contains(_objectType.Name)
-                || isSubscription)
+                || RootObjectTypeNames.Contains(_objectType.Name))
                 yield return WithAbstractFieldMethod(methodName, objectType, field);
             else
                 yield return WithPropertyFieldMethod(methodName, objectType, field);
@@ -133,7 +132,17 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             var methodName = field.Key.ToFieldResolverName();
             var returnType = nameof(ISubscriberResult);
 
-            yield return MethodDeclaration(
+            yield return WithSubscriberMethod(returnType, methodName, field);
+
+            yield return WithAbstractSubscriberMethod(returnType, methodName, field);
+        }
+
+        private MethodDeclarationSyntax WithSubscriberMethod(
+            string returnType, 
+            string methodName,
+            KeyValuePair<string, IField> field)
+        {
+            return MethodDeclaration(
                     GenericName(
                             Identifier("ValueTask"))
                         .WithTypeArgumentList(
@@ -143,13 +152,17 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                     Identifier(methodName))
                 .WithModifiers(
                     TokenList(
-                        new []{
+                        new[]
+                        {
                             Token(SyntaxKind.PublicKeyword),
-                            Token(SyntaxKind.AbstractKeyword)}))
+                            Token(SyntaxKind.VirtualKeyword),
+                            Token(SyntaxKind.AsyncKeyword)
+                        }))
                 .WithParameterList(
                     ParameterList(
                         SeparatedList<ParameterSyntax>(
-                            new SyntaxNodeOrToken[]{
+                            new SyntaxNodeOrToken[]
+                            {
                                 Parameter(
                                         Identifier("context"))
                                     .WithType(
@@ -158,9 +171,135 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                 Parameter(
                                         Identifier("unsubscribe"))
                                     .WithType(
-                                        IdentifierName(nameof(CancellationToken)))})))
+                                        IdentifierName("CancellationToken"))
+                            })))
+                .WithBody(
+                    Block(
+                        LocalDeclarationStatement(
+                            VariableDeclaration(
+                                    IdentifierName("var"))
+                                .WithVariables(
+                                    SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                        VariableDeclarator(
+                                                Identifier("objectValue"))
+                                            .WithInitializer(
+                                                EqualsValueClause(
+                                                    BinaryExpression(
+                                                        SyntaxKind.AsExpression,
+                                                        MemberAccessExpression(
+                                                            SyntaxKind.SimpleMemberAccessExpression,
+                                                            IdentifierName("context"),
+                                                            IdentifierName("ObjectValue")),
+                                                        IdentifierName("T"))))))),
+                        LocalDeclarationStatement(
+                            VariableDeclaration(
+                                    IdentifierName("var"))
+                                .WithVariables(
+                                    SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                        VariableDeclarator(
+                                                Identifier("resultTask"))
+                                            .WithInitializer(
+                                                EqualsValueClause(
+                                                    InvocationExpression(
+                                                            IdentifierName(methodName))
+                                                        .WithArgumentList(
+                                                            ArgumentList(
+                                                                SeparatedList<ArgumentSyntax>(
+                                                                    WithSubscriptionArguments(field))))))))),
+                        IfStatement(
+                            MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                IdentifierName("resultTask"),
+                                IdentifierName("IsCompletedSuccessfully")),
+                            ReturnStatement(
+                                MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    IdentifierName("resultTask"),
+                                    IdentifierName("Result")))),
+                        LocalDeclarationStatement(
+                            VariableDeclaration(
+                                    IdentifierName("var"))
+                                .WithVariables(
+                                    SingletonSeparatedList<VariableDeclaratorSyntax>(
+                                        VariableDeclarator(
+                                                Identifier("result"))
+                                            .WithInitializer(
+                                                EqualsValueClause(
+                                                    AwaitExpression(
+                                                        IdentifierName("resultTask"))))))),
+                        ReturnStatement(
+                            IdentifierName("result"))));
+        }
+
+        private IEnumerable<SyntaxNodeOrToken> WithSubscriptionArguments(KeyValuePair<string, IField> field)
+        {
+            yield return Argument(IdentifierName("objectValue"));
+            yield return Token(SyntaxKind.CommaToken);
+
+            foreach (var arg in field.Value.Arguments)
+            {
+                yield return WithArgument(arg);
+                yield return Token(SyntaxKind.CommaToken);
+            }
+
+            yield return Argument(IdentifierName("unsubscribe"));
+            yield return Token(SyntaxKind.CommaToken);
+
+            yield return Argument(IdentifierName("context"));
+        }
+
+        private MethodDeclarationSyntax WithAbstractSubscriberMethod(string returnType, string methodName,
+            KeyValuePair<string, IField> field)
+        {
+            return MethodDeclaration(
+                    GenericName(
+                            Identifier("ValueTask"))
+                        .WithTypeArgumentList(
+                            TypeArgumentList(
+                                SingletonSeparatedList<TypeSyntax>(
+                                    IdentifierName(returnType)))),
+                    Identifier(methodName))
+                .WithModifiers(
+                    TokenList(
+                        new[]
+                        {
+                            Token(SyntaxKind.PublicKeyword),
+                            Token(SyntaxKind.AbstractKeyword)
+                        }))
+                .WithParameterList(
+                    ParameterList(
+                        SeparatedList<ParameterSyntax>(
+                            WithSubscriptionParameters(field))))
                 .WithSemicolonToken(
                     Token(SyntaxKind.SemicolonToken));
+        }
+
+        private IEnumerable<SyntaxNodeOrToken> WithSubscriptionParameters(KeyValuePair<string, IField> field)
+        {
+            yield return Parameter(
+                    Identifier("objectValue"))
+                .WithType(
+                    IdentifierName("T"));
+
+            yield return Token(SyntaxKind.CommaToken);
+
+            foreach (var argumentDefinition in field.Value.Arguments)
+            {
+                yield return WithParameter(argumentDefinition);
+                yield return Token(SyntaxKind.CommaToken);
+            }
+
+            yield return Parameter(
+                    Identifier("unsubscribe"))
+                .WithType(
+                    IdentifierName("CancellationToken"));
+
+            yield return Token(SyntaxKind.CommaToken);
+
+            yield return Parameter(
+                    Identifier("context"))
+                .WithType(
+                    IdentifierName(nameof(IResolverContext)));
         }
 
         private IEnumerable<StatementSyntax> WithFieldMethodBody(
@@ -347,11 +486,11 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                     Token(SyntaxKind.SemicolonToken));
         }
 
-        private IEnumerable<SyntaxNodeOrToken> WithParameters(
+        public static IEnumerable<SyntaxNodeOrToken> WithParameters(
             ObjectType objectType,
             KeyValuePair<string, IField> field)
         {
-            if (RootObjectTypeNames.Contains(_objectType.Name))
+            if (RootObjectTypeNames.Contains(objectType.Name))
                 yield return Parameter(Identifier("objectValue"))
                     .WithType(IdentifierName("T?"));
             else
@@ -372,7 +511,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 .WithType(IdentifierName(nameof(IResolverContext)));
         }
 
-        private SyntaxNodeOrToken WithParameter(
+        private static SyntaxNodeOrToken WithParameter(
             KeyValuePair<string, Argument> argumentDefinition)
         {
             var argumentName = argumentDefinition.Key.ToFieldArgumentName();

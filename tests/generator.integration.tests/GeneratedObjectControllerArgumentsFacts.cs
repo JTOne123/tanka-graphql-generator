@@ -28,7 +28,7 @@ namespace tanka.graphql.generator.integration.tests
         {
             var context = Substitute.For<IResolverContext>();
             context.ObjectValue.Returns(objectValue);
-            
+
             return context;
         }
 
@@ -78,7 +78,7 @@ namespace tanka.graphql.generator.integration.tests
             {
                 ["arg"] = 1.123
             });
-            
+
             /* When */
             await _sut.Float(context);
 
@@ -96,7 +96,7 @@ namespace tanka.graphql.generator.integration.tests
             {
                 ["arg"] = true
             });
-            
+
             /* When */
             await _sut.Boolean(context);
 

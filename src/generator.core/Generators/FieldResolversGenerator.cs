@@ -171,8 +171,8 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                                     TypeArgumentList(
                                                         SingletonSeparatedList<TypeSyntax>(
                                                             IdentifierName(
-                                                                "ISubscriptionController")))))),
-                                    IdentifierName("RandomNumber")))
+                                                                interfaceName)))))),
+                                    IdentifierName(methodName)))
                             .WithArgumentList(
                                 ArgumentList(
                                     SeparatedList<ArgumentSyntax>(

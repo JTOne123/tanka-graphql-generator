@@ -19,5 +19,7 @@ type ArgumentsTestObject {
 }
 
 type Subscription {
-	randomNumber: Int!
+	int: Int!
+	intWithArgument(arg1: Int!): Int!
+	intWithTwoArguments(arg1: Int!, arg2: String): Int!
 }
