@@ -50,7 +50,7 @@ namespace Tanka.GraphQL.Generator.MSBuild.Tests
 
             var path = "./projects1/project1.csproj";
             var project = ProjectCreator
-                .Create(path, defaultTargets:"GenerateTankaSchema")
+                .Create(path, defaultTargets:"GenerateGraphQL")
                 .PropertyGroup()
                 .Property("Configuration", configuration)
                 .Property("CodeGenerationRoot", "./Generated/")
@@ -60,7 +60,8 @@ namespace Tanka.GraphQL.Generator.MSBuild.Tests
                 .Property("TankaGeneratorToolCommandArgs", "run --no-build -p $(MSBuildProjectDirectory)/../../../../../../src/generator.tool/ -- gen-model")
                 .Property("TankaGeneratorForce", "true")
                 .Import("$(MSBuildProjectDirectory)/../../../../../../src/generator/build/tanka.graphql.generator.props")
-                .Import("$(MSBuildProjectDirectory)/../../../../../../src/generator/build/tanka.graphql.generator.targets");
+                .Import("$(MSBuildProjectDirectory)/../../../../../../src/generator/build/tanka.graphql.generator.targets")
+                .ItemInclude("GraphQL", "Data\\CRM.graphql");
 
             project.TryBuild(out var success, out var log);
             WriteLog(log);

@@ -13,6 +13,12 @@
   <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.props" />
   <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.targets" />
   <ItemGroup>
+    <None Remove="Model\Schema.graphql" />
+  </ItemGroup>
+  <ItemGroup>
+    <GraphQL Include="Model\Schema.graphql" Generate="Complete" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.4.0" />
     <PackageReference Include="NSubstitute" Version="4.2.1" />
     <PackageReference Include="xunit" Version="2.4.1" />
@@ -27,5 +33,4 @@
     <PackageReference Include="tanka.graphql" Version="0.14.0" />
     <PackageReference Include="tanka.graphql.server" Version="0.14.0" />
   </ItemGroup>
-
 </Project>

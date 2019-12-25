@@ -7,16 +7,4 @@
     <TankaGeneratorToolCommandArgs Condition="'$(TankaGeneratorToolCommandArgs)' == ''">tanka-graphql gen-model</TankaGeneratorToolCommandArgs>
     <TankaGeneratorForce Condition="'$(TankaGeneratorForce)' == ''">false</TankaGeneratorForce>
   </PropertyGroup>
-  <ItemDefinitionGroup>
-		<TankaSchema>
-			<Generator>MSBuild:GenerateTankaSchema</Generator>
-      <Code>%(RelativeDir)%(Filename).g.cs</Code>
-		</TankaSchema>
-	</ItemDefinitionGroup>
-
-	<ItemGroup>
-		<None Remove="**/*.graphql"/>
-		<TankaSchema Include="**/*.graphql"/>		
-	</ItemGroup>
-
 </Project>
