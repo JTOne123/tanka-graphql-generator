@@ -13,18 +13,19 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Tanka.GraphQL.Generator.Core.Generators
 {
-    public class AbstractControllerBaseGenerator
+    public class ObjectTypeAbstractControllerBaseGenerator
     {
         private static readonly List<string> RootObjectTypeNames = new List<string>
         {
             "Query",
-            "Mutation"
+            "Mutation",
+            "Subscription"
         };
 
         private readonly ObjectType _objectType;
         private readonly SchemaBuilder _schema;
 
-        public AbstractControllerBaseGenerator(ObjectType objectType, SchemaBuilder schema)
+        public ObjectTypeAbstractControllerBaseGenerator(ObjectType objectType, SchemaBuilder schema)
         {
             _objectType = objectType;
             _schema = schema;
@@ -280,7 +281,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             yield return Parameter(
                     Identifier("objectValue"))
                 .WithType(
-                    IdentifierName("T"));
+                    IdentifierName("T?"));
 
             yield return Token(SyntaxKind.CommaToken);
 
@@ -335,7 +336,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                             ))))));
 
 
-            if (!RootObjectTypeNames.Contains(_objectType.Name) && !isSubscription)
+            if (!RootObjectTypeNames.Contains(_objectType.Name))
                 yield return IfStatement(
                         BinaryExpression(
                             SyntaxKind.EqualsExpression,
@@ -447,9 +448,23 @@ namespace Tanka.GraphQL.Generator.Core.Generators
             var argument = argumentDefinition.Value;
             var typeName = CodeModel.SelectTypeName(argument.Type);
 
-            var getArgumentMethodName = argument.Type.Unwrap() is InputObjectType 
-                ? nameof(ResolverContextExtensions.GetObjectArgument) 
-                : nameof(ResolverContextExtensions.GetArgument);
+            var isInputObject = argument.Type.Unwrap() is InputObjectType;
+
+            string getArgumentMethodName;
+            if (isInputObject)
+            {
+                if (argument.Type is TypeSystem.List)
+                {
+                    typeName = CodeModel.SelectTypeName(argument.Type.Unwrap());
+                    getArgumentMethodName = nameof(ResolverContextExtensions.GetObjectArgumentList);
+                }
+                else
+                    getArgumentMethodName = nameof(ResolverContextExtensions.GetObjectArgument);
+            }
+            else
+            {
+                getArgumentMethodName = nameof(ResolverContextExtensions.GetArgument);
+            }
 
             var getArgumentValue = InvocationExpression(
                     MemberAccessExpression(

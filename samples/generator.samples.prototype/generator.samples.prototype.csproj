@@ -19,7 +19,7 @@
     <GraphQL Include="CRM\Proto.graphql" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="tanka.graphql" Version="0.14.0" />
-    <PackageReference Include="tanka.graphql.server" Version="0.14.0" />
+    <PackageReference Include="tanka.graphql" Version="0.15.0" />
+    <PackageReference Include="tanka.graphql.server" Version="0.15.0" />
   </ItemGroup>
 </Project>

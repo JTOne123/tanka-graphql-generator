@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Threading.Tasks;
 using NSubstitute;
 using Tanka.GraphQL.Generator.Integration.Tests.Model;
@@ -48,6 +49,26 @@ namespace tanka.graphql.generator.integration.tests
 
             /* Then */
             await _sut.Received().Int(objectValue, 1, context);
+        }
+
+        [Fact]
+        public async Task Single_Scalar_Int_Array_argument()
+        {
+            /* Given */
+            var objectValue = new ArgumentsTestObject();
+            var context = CreateContext(objectValue);
+
+            var argValues = new int?[] {1, 2, 3, 4, 5};
+            context.Arguments.Returns(new Dictionary<string, object>()
+            {
+                ["arg"] = argValues
+            });
+
+            /* When */
+            await _sut.ArrayOfInt(context);
+
+            /* Then */
+            await _sut.Received().ArrayOfInt(objectValue, argValues, context);
         }
 
         [Fact]
@@ -123,6 +144,44 @@ namespace tanka.graphql.generator.integration.tests
 
             /* Then */
             await _sut.Received().Input(objectValue, Arg.Is<TestInputObject>(ti => ti.Int == 1), context);
+        }
+
+        [Fact]
+        public async Task Single_InputObject_Array_argument()
+        {
+            /* Given */
+            var objectValue = new ArgumentsTestObject();
+            var context = CreateContext(objectValue);
+
+            var argValues = new Dictionary<string, object>?[]
+            {
+                new Dictionary<string, object>()
+                {
+                    ["int"] = 1
+                },
+                new Dictionary<string, object>()
+                {
+                    ["int"] = 2
+                },
+                new Dictionary<string, object>()
+                {
+                    ["int"] = 3
+                }
+            };
+
+            context.Arguments.Returns(new Dictionary<string, object>()
+            {
+                ["arg"] = argValues
+            });
+
+            /* When */
+            await _sut.ArrayOfInputObject(context);
+
+            /* Then */
+            await _sut.Received().ArrayOfInputObject(
+                objectValue, 
+                Arg.Is<IEnumerable<TestInputObject>>(arr => arr.Count() == 3), 
+                context);
         }
     }
 }

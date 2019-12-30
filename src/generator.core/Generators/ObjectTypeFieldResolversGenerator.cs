@@ -9,13 +9,13 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Tanka.GraphQL.Generator.Core.Generators
 {
-    public class FieldResolversGenerator
+    public class ObjectTypeFieldResolversGenerator
     {
         private readonly ObjectType _objectType;
         private readonly SchemaBuilder _schema;
         private string _name;
 
-        public FieldResolversGenerator(ObjectType objectType, SchemaBuilder schema)
+        public ObjectTypeFieldResolversGenerator(ObjectType objectType, SchemaBuilder schema)
         {
             _objectType = objectType;
             _schema = schema;

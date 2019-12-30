@@ -35,15 +35,15 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
         private IEnumerable<MemberDeclarationSyntax> GenerateObjectType(ObjectType objectType)
         {
-            yield return new ControllerInterfaceGenerator(objectType, _schema).Generate();
-            yield return new FieldResolversGenerator(objectType, _schema).Generate();
-            yield return new AbstractControllerBaseGenerator(objectType, _schema).Generate();
-            yield return new PartialObjectTypeModelGenerator(objectType, _schema).Generate();
+            yield return new ObjectTypeControllerInterfaceGenerator(objectType, _schema).Generate();
+            yield return new ObjectTypeFieldResolversGenerator(objectType, _schema).Generate();
+            yield return new ObjectTypeAbstractControllerBaseGenerator(objectType, _schema).Generate();
+            yield return new ObjectTypeModelGenerator(objectType, _schema).Generate();
         }
 
         private IEnumerable<MemberDeclarationSyntax> GenerateInputObjectType(InputObjectType inputObjectType)
         {
-            yield return new InputObjectGenerator(inputObjectType, _schema).Generate();
+            yield return new InputObjectModelGenerator(inputObjectType, _schema).Generate();
         }
     }
 }

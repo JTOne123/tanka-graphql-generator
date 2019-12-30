@@ -4,6 +4,7 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <PropertyGroup>
+    <TankaGeneratorForce>true</TankaGeneratorForce>
     <TankaSchemaTaskAssembly>$(MSBuildProjectDirectory)/../../src/generator/bin/Debug/netstandard2.0/tanka.graphql.generator.dll</TankaSchemaTaskAssembly>
     <TankaGeneratorToolCommand>dotnet</TankaGeneratorToolCommand>
     <TankaGeneratorToolCommandArgs>run --no-build -p $(MSBuildThisFileDirectory)../../src/generator.tool/ -- gen-model</TankaGeneratorToolCommandArgs>
@@ -30,7 +31,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="tanka.graphql" Version="0.14.0" />
-    <PackageReference Include="tanka.graphql.server" Version="0.14.0" />
+    <PackageReference Include="tanka.graphql" Version="0.15.0" />
+    <PackageReference Include="tanka.graphql.server" Version="0.15.0" />
   </ItemGroup>
 </Project>

@@ -11,12 +11,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Tanka.GraphQL.Generator.Core.Generators
 {
-    public class InputObjectGenerator
+    public class InputObjectModelGenerator
     {
         private InputObjectType _inputObjectType;
         private SchemaBuilder _schema;
 
-        public InputObjectGenerator(InputObjectType inputObjectType, SchemaBuilder schema)
+        public InputObjectModelGenerator(InputObjectType inputObjectType, SchemaBuilder schema)
         {
             _inputObjectType = inputObjectType;
             _schema = schema;

@@ -16,6 +16,8 @@ type ArgumentsTestObject {
 	float(arg: Float): Float
 	boolean(arg: Boolean): Boolean
 	input(arg: TestInputObject): Int
+	arrayOfInt(arg: [Int]): [Int]
+	arrayOfInputObject(arg: [TestInputObject]): [Int]
 }
 
 type Subscription {

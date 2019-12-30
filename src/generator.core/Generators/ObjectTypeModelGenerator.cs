@@ -9,12 +9,12 @@ using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Tanka.GraphQL.Generator.Core.Generators
 {
-    public class PartialObjectTypeModelGenerator
+    public class ObjectTypeModelGenerator
     {
         private readonly ObjectType _objectType;
         private readonly SchemaBuilder _schema;
 
-        public PartialObjectTypeModelGenerator(ObjectType objectType, SchemaBuilder schema)
+        public ObjectTypeModelGenerator(ObjectType objectType, SchemaBuilder schema)
         {
             _objectType = objectType;
             _schema = schema;
@@ -41,7 +41,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
 
             foreach (var field in fields)
             {
-                if (AbstractControllerBaseGenerator.IsAbstract(
+                if (ObjectTypeAbstractControllerBaseGenerator.IsAbstract(
                     _schema, 
                     _objectType, 
                     field))
