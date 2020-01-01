@@ -1,10 +1,4 @@
-﻿directive @gen(
-	asAbstract: Boolean! = false,
-	asProperty: Boolean! = false,
-	clrType: String = null
-) on FIELD_DEFINITION
-
-type Query {
+﻿type Query {
 	field: String
 }
 

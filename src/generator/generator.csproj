@@ -17,10 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="build\graphql.xaml" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Microsoft.Build.Framework" Version="16.4.0">
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
@@ -28,17 +24,5 @@
       <PrivateAssets>All</PrivateAssets>
     </PackageReference>
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Update="build\graphql.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </Content>
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="build\tanka.graphql.generator.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </None>
-  </ItemGroup>
-
+  
 </Project>

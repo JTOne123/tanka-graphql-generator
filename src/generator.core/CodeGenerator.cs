@@ -80,9 +80,18 @@ namespace Tanka.GraphQL.Generator.Core
         {
             var content = File.ReadAllText(_inputFile);
             var builder = new SchemaBuilder()
+                //.Sdl(CodeDirectivesSdl)
                 .Sdl(content);
 
             return Task.FromResult(builder);
         }
+
+        /*public static string CodeDirectivesSdl = @"
+directive @gen(
+	asAbstract: Boolean! = false,
+	asProperty: Boolean! = false,
+	clrType: String = null
+) on FIELD_DEFINITION
+";*/
     }
 }

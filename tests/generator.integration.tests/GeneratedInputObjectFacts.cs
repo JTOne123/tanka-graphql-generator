@@ -6,7 +6,7 @@ namespace tanka.graphql.generator.integration.tests
 {
     public class GeneratedInputObjectFacts
     {
-        private TestInputObject _sut;
+        private readonly TestInputObject _sut;
 
         public GeneratedInputObjectFacts()
         {

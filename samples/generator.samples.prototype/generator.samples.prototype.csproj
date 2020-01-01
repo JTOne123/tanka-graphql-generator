@@ -6,9 +6,10 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <PropertyGroup>
-    <TankaSchemaTaskAssembly>$(MSBuildProjectDirectory)/../../src/generator/bin/$(Configuration)/netstandard2.0/tanka.graphql.generator.dll</TankaSchemaTaskAssembly>
+    <TankaGeneratorForce>true</TankaGeneratorForce>
+    <TankaSchemaTaskAssembly>$(MSBuildProjectDirectory)/../../src/generator/bin/Debug/netstandard2.0/tanka.graphql.generator.dll</TankaSchemaTaskAssembly>
     <TankaGeneratorToolCommand>dotnet</TankaGeneratorToolCommand>
-    <TankaGeneratorToolCommandArgs>run --no-build -p $(MSBuildThisFileDirectory)/../../src/generator.tool/ -- gen-model</TankaGeneratorToolCommandArgs>
+    <TankaGeneratorToolCommandArgs>run --no-build -p $(MSBuildThisFileDirectory)../../src/generator.tool/ -- gen-model</TankaGeneratorToolCommandArgs>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.props" />
   <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.targets" />
