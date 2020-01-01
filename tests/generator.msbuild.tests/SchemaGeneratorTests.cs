@@ -59,7 +59,6 @@ namespace Tanka.GraphQL.Generator.MSBuild.Tests
                 .Property("TankaGeneratorToolCommand", "dotnet")
                 .Property("TankaGeneratorToolCommandArgs", "run --no-build -p $(MSBuildProjectDirectory)/../../../../../../src/generator.tool/ -- gen-model")
                 .Property("TankaGeneratorForce", "true")
-                .Import("$(MSBuildProjectDirectory)/../../../../../../src/generator/build/tanka.graphql.generator.props")
                 .Import("$(MSBuildProjectDirectory)/../../../../../../src/generator/build/tanka.graphql.generator.targets")
                 .ItemInclude("GraphQL", "Data\\CRM.graphql");
 

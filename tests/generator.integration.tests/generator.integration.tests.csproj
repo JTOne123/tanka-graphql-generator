@@ -11,11 +11,7 @@
     <RootNamespace>Tanka.GraphQL.Generator.Integration.Tests</RootNamespace>
     <AssemblyName>tanka.graphql.generator.integration.tests</AssemblyName>
   </PropertyGroup>
-  <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.props" />
   <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.targets" />
-  <ItemGroup>
-    <None Remove="Model\Schema.graphql" />
-  </ItemGroup>
   <ItemGroup>
     <GraphQL Include="Model\Schema.graphql" Generate="Complete" />
   </ItemGroup>

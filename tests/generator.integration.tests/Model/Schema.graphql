@@ -4,6 +4,7 @@
 }
 
 input TestInputObject {
+	id: ID
 	int: Int
 	string: String
 	float: Float

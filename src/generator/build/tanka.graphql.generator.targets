@@ -3,8 +3,15 @@
 <Project
   xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
 
-  <UsingTask AssemblyFile="$(TankaSchemaTaskAssembly)" TaskName="SchemaGenerator" />
+  <PropertyGroup>
+    <TankaSchemaTaskAssembly Condition="'$(TankaSchemaTaskAssembly)' == ''">netstandard2.0\tanka.graphql.generator.dll</TankaSchemaTaskAssembly>
+    <TankaGeneratorToolCommand Condition="'$(TankaGeneratorToolCommand)' == ''">dotnet</TankaGeneratorToolCommand>
+    <TankaGeneratorToolCommandArgs Condition="'$(TankaGeneratorToolCommandArgs)' == ''">tanka-graphql gen-model</TankaGeneratorToolCommandArgs>
+    <TankaGeneratorForce Condition="'$(TankaGeneratorForce)' == ''">false</TankaGeneratorForce>
+  </PropertyGroup>
 
+  <UsingTask AssemblyFile="$(TankaSchemaTaskAssembly)" TaskName="SchemaGenerator" />
+  
   <ItemGroup>
     <PropertyPageSchema Include="$(MSBuildThisFileDirectory)tanka.graphql.generator.xaml">
       <Context>File;BrowseObject</Context>
@@ -24,13 +31,6 @@
     </GraphQL>
   </ItemDefinitionGroup>
 
-  <PropertyGroup>
-    <GenerateGraphQLDependsOn>
-      $(GenerateGraphQLDependsOn);
-      BeforeGenerateGraphQL;
-    </GenerateGraphQLDependsOn>
-  </PropertyGroup>
-
   <Target Name="BeforeGenerateGraphQL">
     <PropertyGroup>
       <CodeGenerationRoot Condition="'$(CodeGenerationRoot)' == ''">$(MSBuildProjectDirectory)\$(IntermediateOutputPath)</CodeGenerationRoot>
@@ -39,13 +39,12 @@
       <GraphQL Update="@(GraphQL)">
         <Code>$(CodeGenerationRoot)%(Code)</Code>
       </GraphQL>
-      <GraphQL Remove="@(GraphQL)" Condition=" %(Generate) =='None' " />
+      <GraphQL Remove="@(GraphQL)" Condition=" %(Generate) == 'None' " />
     </ItemGroup>
   </Target>
 
   <Target
     Name="GenerateGraphQLCode"
-    DependsOnTargets="$(GenerateGraphQLCodeDependsOn)"
     Condition="'@(GraphQL)' != ''">
     <SchemaGenerator
       Command="$(TankaGeneratorToolCommand)"
@@ -59,8 +58,6 @@
       <Compile Include="@(SchemaCode)" />
       <!-- Extend to be cleaned on clean-->
       <FileWrites Include="@(SchemaCode)" />
-
-      <SourceFilesProjectOutputGroupOutput Include="@(GraphQL->'%(FullPath)')" />
     </ItemGroup>
   </Target>
 
@@ -75,5 +72,19 @@
   <Target Name="GenerateGraphQL"
           DependsOnTargets="$(GenerateGraphQLDependsOn)"
           BeforeTargets="CoreCompile">
+  </Target>
+
+  <Target Name="_GraphQL_SourceFilesProjectOutputGroup"
+          BeforeTargets="SourceFilesProjectOutputGroup"
+          Condition=" '@(GraphQL)' != '' " >
+    <ItemGroup>
+      <SourceFilesProjectOutputGroupOutput Include="@(GraphQL->'%(FullPath)')" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="EmbedGraphQL" BeforeTargets="PrepareForBuild">
+    <ItemGroup>
+      <EmbeddedResource Include="@(GraphQL)" />
+    </ItemGroup>
   </Target>
 </Project>
