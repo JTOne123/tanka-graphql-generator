@@ -74,13 +74,13 @@
           BeforeTargets="CoreCompile">
   </Target>
 
-  <Target Name="_GraphQL_SourceFilesProjectOutputGroup"
+ <!-- <Target Name="_GraphQL_SourceFilesProjectOutputGroup"
           BeforeTargets="SourceFilesProjectOutputGroup"
           Condition=" '@(GraphQL)' != '' " >
     <ItemGroup>
       <SourceFilesProjectOutputGroupOutput Include="@(GraphQL->'%(FullPath)')" />
     </ItemGroup>
-  </Target>
+  </Target>-->
 
   <Target Name="EmbedGraphQL" BeforeTargets="PrepareForBuild">
     <ItemGroup>

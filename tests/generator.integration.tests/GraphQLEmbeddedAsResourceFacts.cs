@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Text;
 using Xunit;
 
-namespace tanka.graphql.generator.integration.tests
+namespace Tanka.GraphQL.Generator.Integration.Tests
 {
     public class GraphQLEmbeddedAsResourceFacts
     {

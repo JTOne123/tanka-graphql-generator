@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Tanka.GraphQL.SchemaBuilding;
 using Tanka.GraphQL.TypeSystem;
+using static Microsoft.CodeAnalysis.CSharp.SyntaxFactory;
 
 namespace Tanka.GraphQL.Generator.Core
 {
@@ -22,7 +23,7 @@ namespace Tanka.GraphQL.Generator.Core
             return true;
         }
 
-        public static string SelectFieldTypeName(SchemaBuilder schema, ObjectType objectType, KeyValuePair<string, IField> field)
+        public static string SelectFieldTypeName(SchemaBuilder schema, ComplexType ownerType, KeyValuePair<string, IField> field)
         {
             if (schema.TryGetDirective("gen", out _))
             {
@@ -49,6 +50,10 @@ namespace Tanka.GraphQL.Generator.Core
             if (type is List list)
             {
                 var ofType = SelectTypeName(list.OfType);
+
+                if (nullable)
+                    return $"IEnumerable<{ofType}>?";
+
                 return $"IEnumerable<{ofType}>";
             }
 
@@ -68,9 +73,14 @@ namespace Tanka.GraphQL.Generator.Core
                 ObjectType objectType => SelectObjectTypeName(objectType),
                 EnumType enumType => SelectEnumTypeName(enumType),
                 InputObjectType inputObjectType=> SelectInputObjectTypeName(inputObjectType),
-                //todo: union special wrapping
+                InterfaceType interfaceType => SelectInterfaceTypeName(interfaceType),
                 _ => "object"
             };
+        }
+
+        private static string SelectInterfaceTypeName(InterfaceType interfaceType)
+        {
+            return interfaceType.Name.ToModelInterfaceName();
         }
 
         public static string SelectFieldTypeName(SchemaBuilder schema, InputObjectType inputObjectType, KeyValuePair<string, InputObjectField> fieldDefinition)
@@ -135,7 +145,7 @@ namespace Tanka.GraphQL.Generator.Core
             return SyntaxFactory.ParseLeadingTrivia(comment);
         }
 
-        public static bool IsAbstract(SchemaBuilder schema, ObjectType objectType, KeyValuePair<string, IField> field)
+        public static bool IsAbstract(SchemaBuilder schema, ComplexType ownerType, KeyValuePair<string, IField> field)
         {
             // Check for gen override directive
             if (schema.TryGetDirective("gen", out _))
@@ -165,18 +175,36 @@ namespace Tanka.GraphQL.Generator.Core
             var type = field.Value.Type;
 
             // if complex type (Object, Interface) then requires implementation
-            if (type is ComplexType)
+            if (type.Unwrap() is ComplexType)
                 return true;
 
             // unions require implementation as they require the actual graph type to be
             // given
-            if (type is UnionType)
+            if (type.Unwrap() is UnionType)
                 return true;
 
-            if (schema.IsSubscriptionType(objectType))
+            if (schema.IsSubscriptionType(ownerType))
                 return true;
 
             return false;
+        }
+
+        public static MemberDeclarationSyntax TypenameProperty(string name)
+        {
+            return PropertyDeclaration(
+                    PredefinedType(
+                        Token(SyntaxKind.StringKeyword)),
+                    Identifier("__Typename"))
+                .WithModifiers(
+                    TokenList(
+                        Token(SyntaxKind.PublicKeyword)))
+                .WithExpressionBody(
+                    ArrowExpressionClause(
+                        LiteralExpression(
+                            SyntaxKind.StringLiteralExpression,
+                            Literal(name))))
+                .WithSemicolonToken(
+                    Token(SyntaxKind.SemicolonToken));
         }
     }
 }

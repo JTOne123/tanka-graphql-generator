@@ -55,7 +55,8 @@ namespace Tanka.GraphQL.Generator.Core
                     UsingDirective(ParseName(typeof(CancellationToken).Namespace)),
                     UsingDirective(ParseName("Tanka.GraphQL")),
                     UsingDirective(ParseName("Tanka.GraphQL.ValueResolution")),
-                    UsingDirective(ParseName("Tanka.GraphQL.Server"))
+                    UsingDirective(ParseName("Tanka.GraphQL.Server")),
+                    UsingDirective(ParseName("Tanka.GraphQL.TypeSystem"))
                 };
         }
 

@@ -28,6 +28,11 @@ namespace Tanka.GraphQL.Generator.Core
                 .Capitalize();
         }
 
+        public static string ToModelInterfaceName(this string name)
+        {
+            return name.ToModelName().ToInterfaceName();
+        }
+
         public static string ToFieldResolversName(this string name)
         {
             if (name == null) throw new ArgumentNullException(nameof(name));

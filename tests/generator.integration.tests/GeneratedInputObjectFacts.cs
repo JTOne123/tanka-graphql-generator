@@ -2,7 +2,7 @@
 using Tanka.GraphQL.Generator.Integration.Tests.Model;
 using Xunit;
 
-namespace tanka.graphql.generator.integration.tests
+namespace Tanka.GraphQL.Generator.Integration.Tests
 {
     public class GeneratedInputObjectFacts
     {

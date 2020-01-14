@@ -9,10 +9,18 @@
     <TankaGeneratorToolCommand>dotnet</TankaGeneratorToolCommand>
     <TankaGeneratorToolCommandArgs>run --no-build -p $(MSBuildThisFileDirectory)../../src/generator.tool/ -- gen-model</TankaGeneratorToolCommandArgs>
     <RootNamespace>Tanka.GraphQL.Generator.Integration.Tests</RootNamespace>
-    <AssemblyName>tanka.graphql.generator.integration.tests</AssemblyName>
+    <AssemblyName>Tanka.GraphQL.Generator.Integration.Tests</AssemblyName>
   </PropertyGroup>
   <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.targets" />
   <ItemGroup>
+    <None Remove="Types\InputObjectType\Schema.graphql" />
+    <None Remove="Types\InterfaceType\Schema.graphql" />
+    <None Remove="Types\ObjectType\Schema.graphql" />
+  </ItemGroup>
+  <ItemGroup>
+    <GraphQL Include="Types\InputObjectType\Schema.graphql" Generate="Complete" />
+    <GraphQL Include="Types\InterfaceType\Schema.graphql" Generate="Complete" />
+    <GraphQL Include="Types\ObjectType\Schema.graphql" Generate="Complete" />
     <GraphQL Include="Model\Schema.graphql" Generate="Complete" />
   </ItemGroup>
   <ItemGroup>

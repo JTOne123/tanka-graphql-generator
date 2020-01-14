@@ -28,9 +28,19 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 case InputObjectType inputObjectType:
                     types.AddRange(GenerateInputObjectType(inputObjectType));
                     break;
+                case InterfaceType interfaceType:
+                    types.AddRange(GenerateInterfaceType(interfaceType));
+                    break;
             }
 
             return types;
+        }
+
+        private IEnumerable<MemberDeclarationSyntax> GenerateInterfaceType(InterfaceType interfaceType)
+        {
+            yield return new InterfaceTypeModelGenerator(interfaceType, _schema).Generate();
+            yield return new InterfaceTypeControllerInterfaceGenerator(interfaceType, _schema).Generate();
+            yield return new InterfaceTypeControllerGenerator(interfaceType, _schema).Generate();
         }
 
         private IEnumerable<MemberDeclarationSyntax> GenerateObjectType(ObjectType objectType)

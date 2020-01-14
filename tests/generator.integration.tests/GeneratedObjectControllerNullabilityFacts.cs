@@ -4,7 +4,7 @@ using Tanka.GraphQL.Generator.Integration.Tests.Model;
 using Tanka.GraphQL.ValueResolution;
 using Xunit;
 
-namespace tanka.graphql.generator.integration.tests
+namespace Tanka.GraphQL.Generator.Integration.Tests
 {
     public class NullabilityTestObjectController : NullabilityTestObjectControllerBase<NullabilityTestObject>
     {
