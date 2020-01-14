@@ -1,5 +1,5 @@
 ﻿type Query {
-	field: String
+	search(q: String!): ContactSearchResult!
 }
 
 schema {
@@ -10,3 +10,13 @@ type Contact {
 	firstName: String
 	lastName: String
 }
+
+type ContactResults {
+	contact: [Contact!]!
+}
+
+type SearchSuggestions {
+	suggestions: [String!]!
+}
+
+union ContactSearchResult = ContactResults | SearchSuggestions 

@@ -14,11 +14,13 @@
   <Import Project="$(MSBuildThisFileDirectory)/../../src/generator/build/tanka.graphql.generator.targets" />
   <ItemGroup>
     <None Remove="Types\InputObjectType\Schema.graphql" />
+    <None Remove="Types\UnionType\Schema.graphql" />
     <None Remove="Types\InterfaceType\Schema.graphql" />
     <None Remove="Types\ObjectType\Schema.graphql" />
   </ItemGroup>
   <ItemGroup>
     <GraphQL Include="Types\InputObjectType\Schema.graphql" Generate="Complete" />
+    <GraphQL Include="Types\UnionType\Schema.graphql" Generate="Complete" />
     <GraphQL Include="Types\InterfaceType\Schema.graphql" Generate="Complete" />
     <GraphQL Include="Types\ObjectType\Schema.graphql" Generate="Complete" />
     <GraphQL Include="Model\Schema.graphql" Generate="Complete" />

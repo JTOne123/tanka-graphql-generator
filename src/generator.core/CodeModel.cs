@@ -74,8 +74,14 @@ namespace Tanka.GraphQL.Generator.Core
                 EnumType enumType => SelectEnumTypeName(enumType),
                 InputObjectType inputObjectType=> SelectInputObjectTypeName(inputObjectType),
                 InterfaceType interfaceType => SelectInterfaceTypeName(interfaceType),
+                UnionType unionType => SelectUnionTypeName(unionType),
                 _ => "object"
             };
+        }
+
+        private static string SelectUnionTypeName(UnionType unionType)
+        {
+            return unionType.Name.ToModelInterfaceName();
         }
 
         private static string SelectInterfaceTypeName(InterfaceType interfaceType)

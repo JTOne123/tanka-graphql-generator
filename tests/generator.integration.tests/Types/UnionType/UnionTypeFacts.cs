@@ -9,28 +9,28 @@ using Tanka.GraphQL.TypeSystem;
 using Tanka.GraphQL.ValueResolution;
 using Xunit;
 
-namespace Tanka.GraphQL.Generator.Integration.Tests.Types.InterfaceType
+namespace Tanka.GraphQL.Generator.Integration.Tests.Types.UnionType
 {
     public class ObjectTypeController : ObjectTypeControllerBase<ObjectType>
     {
-        public override ValueTask<IInterfaceType?> Property(ObjectType objectValue, IResolverContext context)
+        public override ValueTask<IFieldType?> Property(ObjectType objectValue, IResolverContext context)
         {
-            return new ValueTask<IInterfaceType?>(new FieldType());
+            return new ValueTask<IFieldType?>(new FieldValue1());
         }
 
-        public override ValueTask<IEnumerable<IInterfaceType?>?> List(ObjectType objectValue, IResolverContext context)
+        public override ValueTask<IEnumerable<IFieldType?>?> List(ObjectType objectValue, IResolverContext context)
         {
-            return new ValueTask<IEnumerable<IInterfaceType?>?>(new []
+            return new ValueTask<IEnumerable<IFieldType?>?>(new IFieldType[]
             {
-                new FieldType(), 
-                new FieldType(), 
+                new FieldValue1(), 
+                new FieldValue2()
             });
         }
     }
 
-    public class InterfaceTypeFacts
+    public class UnionTypeFacts
     {
-        public InterfaceTypeFacts()
+        public UnionTypeFacts()
         {
             _sut = Substitute.ForPartsOf<ObjectTypeController>();
             _schema = Substitute.For<ISchema>();
@@ -63,40 +63,40 @@ namespace Tanka.GraphQL.Generator.Integration.Tests.Types.InterfaceType
         }
 
         [Fact]
-        public async Task Should_Use_IsTypeOf_from_interface_controller()
+        public async Task Should_Use_IsTypeOf_from_union_controller()
         {
             /* Given */
             var objectValue = new ObjectType();
             var context = CreateContext(objectValue);
-            var interfaceTypeController = Substitute.For<IInterfaceTypeController>();
-            _provider.GetService(typeof(IInterfaceTypeController))
-                .Returns(interfaceTypeController);
+            var unionTypeController = Substitute.For<IFieldTypeController>();
+            _provider.GetService(typeof(IFieldTypeController))
+                .Returns(unionTypeController);
 
             /* When */
             await _sut.Property(context);
 
             /* Then */
-            interfaceTypeController.Received().IsTypeOf(
-                Arg.Any<FieldType>(), 
+            unionTypeController.Received().IsTypeOf(
+                Arg.Any<IFieldType>(), 
                 _schema);
         }
 
         [Fact(Skip = "For lists the IsTypeOf call is made during value completion")]
-        public async Task Should_Use_IsTypeOf_from_interface_controller_for_list()
+        public async Task Should_Use_IsTypeOf_from_union_controller_for_list()
         {
             /* Given */
             var objectValue = new ObjectType();
             var context = CreateContext(objectValue);
-            var interfaceTypeController = Substitute.For<IInterfaceTypeController>();
-            _provider.GetService(typeof(IInterfaceTypeController))
-                .Returns(interfaceTypeController);
+            var unionTypeController = Substitute.For<IFieldTypeController>();
+            _provider.GetService(typeof(IFieldTypeController))
+                .Returns(unionTypeController);
 
             /* When */
             await _sut.List(context);
 
             /* Then */
-            interfaceTypeController.Received().IsTypeOf(
-                Arg.Any<FieldType>(), 
+            unionTypeController.Received().IsTypeOf(
+                Arg.Any<IFieldType>(), 
                 _schema);
         }
 
@@ -106,9 +106,9 @@ namespace Tanka.GraphQL.Generator.Integration.Tests.Types.InterfaceType
             /* Given */
             var objectValue = new ObjectType();
             var context = CreateContext(objectValue);
-            var interfaceTypeController = Substitute.For<IInterfaceTypeController>();
-            _provider.GetService(typeof(IInterfaceTypeController))
-                .Returns(interfaceTypeController);
+            var unionTypeController = Substitute.For<IFieldTypeController>();
+            _provider.GetService(typeof(IFieldTypeController))
+                .Returns(unionTypeController);
 
             /* When */
             await _sut.Property(context);
@@ -123,9 +123,9 @@ namespace Tanka.GraphQL.Generator.Integration.Tests.Types.InterfaceType
             /* Given */
             var objectValue = new ObjectType();
             var context = CreateContext(objectValue);
-            var interfaceTypeController = Substitute.For<IInterfaceTypeController>();
-            _provider.GetService(typeof(IInterfaceTypeController))
-                .Returns(interfaceTypeController);
+            var unionTypeController = Substitute.For<IFieldTypeController>();
+            _provider.GetService(typeof(IFieldTypeController))
+                .Returns(unionTypeController);
 
             /* When */
             await _sut.List(context);
@@ -138,8 +138,22 @@ namespace Tanka.GraphQL.Generator.Integration.Tests.Types.InterfaceType
         public void Default_IsTypeOf_uses__Typename_and_schema()
         {
             /* Given */
-            var value = new FieldType();
-            var controller = new InterfaceTypeController();
+            var value = new FieldValue1();
+            var controller = new FieldTypeController();
+
+            /* When */
+            controller.IsTypeOf(value, _schema);
+
+            /* Then */
+            _schema.Received().GetNamedType(value.__Typename);
+        }
+
+        [Fact()]
+        public void Default_IsTypeOf_uses__Typename_and_schema2()
+        {
+            /* Given */
+            var value = new FieldValue2();
+            var controller = new FieldTypeController();
 
             /* When */
             controller.IsTypeOf(value, _schema);

@@ -34,33 +34,60 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 .WithMembers(
                     List(GenerateProperties()));
 
-            if (_objectType.Interfaces != null && _objectType.Interfaces.Any())
-            {
-                classDeclaration = classDeclaration.WithBaseList(WithInterfaces());
-            }
+            var baseList = WithInterfaces(out var count);
 
+            if (count > 0)
+            {
+                classDeclaration = classDeclaration.WithBaseList(baseList);
+            }
+        
             return classDeclaration;
         }
 
-        private BaseListSyntax WithInterfaces()
+        private BaseListSyntax WithInterfaces(out int count)
         {
-            var interfaceList = new List<SyntaxNodeOrToken>();
-            var implementedInterfaces = _objectType.Interfaces.ToList();
-            var interfaceCount = implementedInterfaces.Count;
+            var interfaceNames = new List<string>();
+
+            // interface types
+            if (_objectType.Interfaces != null && _objectType.Interfaces.Any())
+            {
+                interfaceNames.AddRange(_objectType.Interfaces.Select(
+                    interfaceType => interfaceType.Name.ToModelInterfaceName()));
+            }
+
+            // union types
+            var unionTypes = _schema.GetTypes<UnionType>()
+                .Where(unionType => unionType.IsPossible(_objectType))
+                .ToList();
+
+            if (unionTypes.Count > 0)
+            {
+                interfaceNames.AddRange(unionTypes.Select(
+                    unionType => unionType.Name.ToModelInterfaceName()));
+            }
+
+            // create implemented interface list
+            var interfaceCount = interfaceNames.Count;
 
             if (interfaceCount == 0)
+            {
+                count = 0;
                 return BaseList();
+            }
+
+            var interfaceList = new List<SyntaxNodeOrToken>();
 
             for (int i = 0; i < interfaceCount; i++)
             {
-                var implementedInterface = implementedInterfaces[i];
-                var modelName = implementedInterface.Name.ToModelInterfaceName();
-                interfaceList.Add(SimpleBaseType(IdentifierName(modelName)));
+                var interfaceName = interfaceNames[i];
+
+                interfaceList.Add(SimpleBaseType(IdentifierName(interfaceName)));
 
                 if (interfaceCount > 1 && i < interfaceCount - 1)
                     interfaceList.Add(Token(SyntaxKind.CommaToken));
             }
 
+            count = interfaceCount;
             return BaseList(
                 SeparatedList<BaseTypeSyntax>(interfaceList));
         }

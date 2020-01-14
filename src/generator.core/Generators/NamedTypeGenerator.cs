@@ -31,9 +31,19 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                 case InterfaceType interfaceType:
                     types.AddRange(GenerateInterfaceType(interfaceType));
                     break;
+                case UnionType unionType:
+                    types.AddRange(GenerateUnionType(unionType));
+                    break;
             }
 
             return types;
+        }
+
+        private IEnumerable<MemberDeclarationSyntax> GenerateUnionType(UnionType unionType)
+        {
+            yield return new UnionTypeModelGenerator(unionType, _schema).Generate();
+            yield return new UnionTypeControllerInterfaceGenerator(unionType, _schema).Generate();
+            yield return new UnionTypeControllerGenerator(unionType, _schema).Generate();
         }
 
         private IEnumerable<MemberDeclarationSyntax> GenerateInterfaceType(InterfaceType interfaceType)

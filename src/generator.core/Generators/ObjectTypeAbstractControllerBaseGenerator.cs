@@ -362,7 +362,7 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                                         WithArguments(objectType, field)))))))));
 
             // todo: refactor this whole mess and fix this to work with interfaces and unions
-            if (!(unwrappedFieldType is InterfaceType))
+            if (!(unwrappedFieldType is InterfaceType) && !(unwrappedFieldType is UnionType))
             {
                 yield return IfStatement(
                     MemberAccessExpression(
@@ -397,10 +397,10 @@ namespace Tanka.GraphQL.Generator.Core.Generators
                                         AwaitExpression(
                                             IdentifierName("resultTask")))))));
 
-            if (unwrappedFieldType is InterfaceType interfaceType)
+            if (unwrappedFieldType is InterfaceType || unwrappedFieldType is UnionType)
             {
-                var modelName = interfaceType.Name.ToModelInterfaceName();
-                var modelControllerName = interfaceType.Name
+                var modelName = unwrappedFieldType.Name.ToModelInterfaceName();
+                var modelControllerName = unwrappedFieldType.Name
                     .ToModelInterfaceName()
                     .ToControllerName();
 
