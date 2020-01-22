@@ -56,29 +56,31 @@ namespace Tanka.GraphQL.Generator.Core
                 .Capitalize();
         }
 
-        private static string Capitalize(this string name)
-        {
-            if (string.IsNullOrEmpty(name)) throw new ArgumentException("Value cannot be null or empty.", nameof(name));
-            
-            return $"{name.Substring(0, 1).ToUpperInvariant()}{name.Substring(1)}";
-        }
-
         public static string Sanitize(this string name)
         {
-            if (name.IsKeyword())
-            {
-                return $"_{name}";
-            }
+            if (name.IsKeyword()) return $"_{name}";
 
             return name;
         }
 
         public static bool IsKeyword(this string name)
         {
-            bool isAnyKeyword = SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None
-                                || SyntaxFacts.GetContextualKeywordKind(name) != SyntaxKind.None;
+            var isAnyKeyword = SyntaxFacts.GetKeywordKind(name) != SyntaxKind.None
+                               || SyntaxFacts.GetContextualKeywordKind(name) != SyntaxKind.None;
 
             return isAnyKeyword;
+        }
+
+        public static string ToServiceBuilderName(this string name)
+        {
+            return $"{name.Capitalize()}ServicesBuilder";
+        }
+
+        private static string Capitalize(this string name)
+        {
+            if (string.IsNullOrEmpty(name)) throw new ArgumentException("Value cannot be null or empty.", nameof(name));
+
+            return $"{name.Substring(0, 1).ToUpperInvariant()}{name.Substring(1)}";
         }
     }
 }

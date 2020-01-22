@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Tanka.GraphQL.Generator.Core.Generators;
 using Tanka.GraphQL.SchemaBuilding;
 using Tanka.GraphQL.SDL;
@@ -53,10 +55,12 @@ namespace Tanka.GraphQL.Generator.Core
                     UsingDirective(ParseName(typeof(IEnumerable<>).Namespace)),
                     UsingDirective(ParseName(typeof(ValueTask<>).Namespace)),
                     UsingDirective(ParseName(typeof(CancellationToken).Namespace)),
+                    UsingDirective(ParseName(typeof(IServiceCollection).Namespace)),
+                    UsingDirective(ParseName(typeof(ServiceCollectionDescriptorExtensions).Namespace)),
                     UsingDirective(ParseName("Tanka.GraphQL")),
                     UsingDirective(ParseName("Tanka.GraphQL.ValueResolution")),
-                    UsingDirective(ParseName("Tanka.GraphQL.Server")),
-                    UsingDirective(ParseName("Tanka.GraphQL.TypeSystem"))
+                    UsingDirective(ParseName("Tanka.GraphQL.TypeSystem")),
+                    UsingDirective(ParseName("Tanka.GraphQL.Server"))
                 };
         }
 
@@ -64,7 +68,14 @@ namespace Tanka.GraphQL.Generator.Core
         {
             return schema.GetTypes<INamedType>()
                 .SelectMany(type => GenerateType(type, schema))
-                .Concat(GenerateSchema(schema));
+                .Concat(GenerateSchema(schema))
+                .Concat(GenerateServiceBuilder(schema));
+        }
+
+        private IEnumerable<MemberDeclarationSyntax> GenerateServiceBuilder(SchemaBuilder schema)
+        {
+            yield return new ServicesBuilderGenerator(schema, _schemaName).Generate();
+            yield return new ServiceCollectionExtensionGenerator(schema, _schemaName).Generate();
         }
 
         private IEnumerable<MemberDeclarationSyntax> GenerateSchema(SchemaBuilder schema)
