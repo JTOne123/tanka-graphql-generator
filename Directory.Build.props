@@ -5,7 +5,7 @@
     <Copyright>Pekka Heikura</Copyright>
     <PackageProjectUrl>https://github.com/pekkah/tanka-graphql</PackageProjectUrl>
     <RepositoryUrl>https://github.com/pekkah/tanka-graphql</RepositoryUrl>
-    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <Description>Code generator for Tanka GraphQL library</Description>
     <PackageTags>graphql,tanka,resolvers,generator,msbuild</PackageTags>
     <LangVersion>8.0</LangVersion>

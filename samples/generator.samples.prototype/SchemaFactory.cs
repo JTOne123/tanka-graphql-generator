@@ -4,9 +4,11 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Caching.Memory;
+using Tanka.GraphQL.Generator.Samples.Prototype.CRM;
 using Tanka.GraphQL.SchemaBuilding;
 using Tanka.GraphQL.SDL;
 using Tanka.GraphQL.TypeSystem;
+using Tanka.GraphQL.ValueResolution;
 
 namespace Tanka.GraphQL.Generator.Samples.Prototype
 {
@@ -19,6 +21,7 @@ namespace Tanka.GraphQL.Generator.Samples.Prototype
                 var sdl = LoadSchemaFileFromEmbeddedResource();
                 var schema = new SchemaBuilder()
                     .Sdl(sdl)
+                    .UseResolversAndSubscribers(new CRMResolvers())
                     .Build();
 
                 return Task.FromResult(schema);
