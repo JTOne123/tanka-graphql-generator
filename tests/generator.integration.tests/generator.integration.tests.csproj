@@ -33,11 +33,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="coverlet.collector" Version="1.1.0">
+    <PackageReference Include="coverlet.collector" Version="1.2.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="tanka.graphql" Version="1.0.0-rc" />
-    <PackageReference Include="tanka.graphql.server" Version="1.0.0-rc" />
+    <PackageReference Include="tanka.graphql" Version="1.0.0" />
+    <PackageReference Include="tanka.graphql.server" Version="1.0.0" />
   </ItemGroup>
 </Project>
