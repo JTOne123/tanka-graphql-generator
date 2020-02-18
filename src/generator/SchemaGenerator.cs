@@ -49,6 +49,9 @@ namespace Tanka.GraphQL.Generator
             var inputFilePath = Path.GetFullPath(inputFile.ItemSpec);
             var outputItemSpec = inputFile.GetMetadata("Code");
 
+            if (!File.Exists(inputFilePath))
+                return null;
+
             if (string.IsNullOrEmpty(outputItemSpec))
             {
                 Log.LogError($"Item {inputFile} is missing 'Code' metadata entry. Cannot generate code.");

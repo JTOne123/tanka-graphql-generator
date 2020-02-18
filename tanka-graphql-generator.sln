@@ -4,6 +4,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 16.0.29326.143
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generator", "src\generator\generator.csproj", "{F420D4D0-8E0A-4605-AD2E-0E5BAFB99D4E}"
+	ProjectSection(ProjectDependencies) = postProject
+		{82EDF0FC-EF90-4220-AF9D-AEF0793BA13F} = {82EDF0FC-EF90-4220-AF9D-AEF0793BA13F}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generator.tool", "src\generator.tool\generator.tool.csproj", "{82EDF0FC-EF90-4220-AF9D-AEF0793BA13F}"
 EndProject

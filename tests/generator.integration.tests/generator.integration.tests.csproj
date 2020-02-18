@@ -40,4 +40,9 @@
     <PackageReference Include="tanka.graphql" Version="1.0.2" />
     <PackageReference Include="tanka.graphql.server" Version="1.0.2" />
   </ItemGroup>
+  <Target Name="BeforeGenerateGraphQL">
+  </Target>
+  <Target Name="AfterGenerateGraphQL">
+    <Warning Text="After" />
+  </Target>
 </Project>

@@ -2,7 +2,6 @@
 
 <Project
   xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-
   <PropertyGroup>
     <TankaSchemaTaskAssembly Condition="'$(TankaSchemaTaskAssembly)' == ''">netstandard2.0\tanka.graphql.generator.dll</TankaSchemaTaskAssembly>
     <TankaGeneratorToolCommand Condition="'$(TankaGeneratorToolCommand)' == ''">dotnet</TankaGeneratorToolCommand>
@@ -31,7 +30,10 @@
     </GraphQL>
   </ItemDefinitionGroup>
 
-  <Target Name="BeforeGenerateGraphQL">
+  <Target Name="BeforeGenerateGraphQL" />
+  <Target Name="AfterGenerateGraphQL" />
+
+  <Target Name="PrepareGenerateGraphQL">
     <PropertyGroup>
       <CodeGenerationRoot Condition="'$(CodeGenerationRoot)' == ''">$(MSBuildProjectDirectory)\$(IntermediateOutputPath)</CodeGenerationRoot>
     </PropertyGroup>
@@ -39,6 +41,8 @@
       <GraphQL Update="@(GraphQL)">
         <Code>$(CodeGenerationRoot)%(Code)</Code>
       </GraphQL>
+    </ItemGroup>
+    <ItemGroup>
       <GraphQL Remove="@(GraphQL)" Condition=" %(Generate) == 'None' " />
     </ItemGroup>
   </Target>
@@ -65,7 +69,9 @@
     <GenerateGraphQLDependsOn>
       $(GenerateGraphQLDependsOn);
       BeforeGenerateGraphQL;
-      GenerateGraphQLCode
+      PrepareGenerateGraphQL;
+      GenerateGraphQLCode;
+      AfterGenerateGraphQL;
     </GenerateGraphQLDependsOn>
   </PropertyGroup>
 
@@ -74,7 +80,7 @@
           BeforeTargets="CoreCompile">
   </Target>
 
- <!-- <Target Name="_GraphQL_SourceFilesProjectOutputGroup"
+  <!--<Target Name="_GraphQL_SourceFilesProjectOutputGroup"
           BeforeTargets="SourceFilesProjectOutputGroup"
           Condition=" '@(GraphQL)' != '' " >
     <ItemGroup>

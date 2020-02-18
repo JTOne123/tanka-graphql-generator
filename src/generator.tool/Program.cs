@@ -25,6 +25,11 @@ namespace Tanka.GraphQL.Generator.Tool
                 var input = Path.GetFullPath(opts.InputFile);
                 var output = Path.GetFullPath(opts.OutputFile);
 
+                if (!File.Exists(input))
+                {
+                    throw new FileNotFoundException(
+                        $"Input GraphQL file not found", input);
+                }
 
                 var generator = new CodeGenerator(input, opts.Namespace);
                 var unit = await generator.Generate();
