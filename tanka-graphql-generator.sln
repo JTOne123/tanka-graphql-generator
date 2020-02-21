@@ -11,6 +11,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generator.tool", "src\generator.tool\generator.tool.csproj", "{82EDF0FC-EF90-4220-AF9D-AEF0793BA13F}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generator.samples.prototype", "samples\generator.samples.prototype\generator.samples.prototype.csproj", "{B6536971-293C-44BB-B987-8A2E81428A2D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F420D4D0-8E0A-4605-AD2E-0E5BAFB99D4E} = {F420D4D0-8E0A-4605-AD2E-0E5BAFB99D4E}
+		{82EDF0FC-EF90-4220-AF9D-AEF0793BA13F} = {82EDF0FC-EF90-4220-AF9D-AEF0793BA13F}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{0F5C3356-DC59-43FE-B6C1-294161B2ACA2}"
 	ProjectSection(SolutionItems) = preProject
@@ -23,6 +27,10 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generator.msbuild.tests", "tests\generator.msbuild.tests\generator.msbuild.tests.csproj", "{4863003E-E5B0-47C6-BBC9-5563724B79D0}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "generator.integration.tests", "tests\generator.integration.tests\generator.integration.tests.csproj", "{3A5DF06F-CC23-4A84-B8CD-78A0FE95C4AD}"
+	ProjectSection(ProjectDependencies) = postProject
+		{F420D4D0-8E0A-4605-AD2E-0E5BAFB99D4E} = {F420D4D0-8E0A-4605-AD2E-0E5BAFB99D4E}
+		{82EDF0FC-EF90-4220-AF9D-AEF0793BA13F} = {82EDF0FC-EF90-4220-AF9D-AEF0793BA13F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

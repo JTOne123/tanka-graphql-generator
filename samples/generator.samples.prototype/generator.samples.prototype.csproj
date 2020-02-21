@@ -6,8 +6,9 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <PropertyGroup>
+    <TempTaskFolder>$([System.IO.Path]::GetTempPath())$([System.IO.Path]::GetRandomFileName())</TempTaskFolder>
     <TankaGeneratorForce>true</TankaGeneratorForce>
-    <TankaSchemaTaskAssembly>$(MSBuildProjectDirectory)/../../src/generator/bin/Debug/netstandard2.0/tanka.graphql.generator.dll</TankaSchemaTaskAssembly>
+    <TankaSchemaTaskAssembly>$(TempTaskFolder)/tanka.graphql.generator.dll</TankaSchemaTaskAssembly>
     <TankaGeneratorToolCommand>dotnet</TankaGeneratorToolCommand>
     <TankaGeneratorToolCommandArgs>run --no-build -p $(MSBuildThisFileDirectory)../../src/generator.tool/ -- gen-model</TankaGeneratorToolCommandArgs>
   </PropertyGroup>
@@ -22,4 +23,11 @@
     <PackageReference Include="tanka.graphql" Version="1.0.2" />
     <PackageReference Include="tanka.graphql.server" Version="1.0.2" />
   </ItemGroup>
+  <Target Name="BeforeGenerateGraphQL">
+    <ItemGroup>
+      <_TaskFiles Include="$(MSBuildProjectDirectory)/../../src/generator/bin/Debug/netstandard2.0/**/*.*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(_TaskFiles)"
+          DestinationFolder="$(TempTaskFolder)" />
+  </Target>
 </Project>
